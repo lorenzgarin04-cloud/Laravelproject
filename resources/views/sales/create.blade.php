@@ -31,7 +31,7 @@
                 <ul class="divide-y divide-mint-2">
                     <template x-for="p in results" :key="p.id">
                         <li class="flex items-center gap-4 px-5 py-4">
-                            <img :src="p.photo" :alt="p.name" class="h-12 w-12 shrink-0 rounded-md border border-mint-2 bg-mint-3 object-cover">
+                            <img :src="p.photo" :alt="p.name" class="h-12 w-12 shrink-0 rounded-md border border-mint-2 bg-mint-3 object-cover" onerror="this.onerror=null;this.src='{{ asset('images/no-image.svg') }}'">
                             <div class="min-w-0 flex-1">
                                 <p class="truncate font-display text-base font-semibold text-ink" x-text="p.name"></p>
                                 <div class="mt-1.5 flex flex-wrap items-center gap-2">

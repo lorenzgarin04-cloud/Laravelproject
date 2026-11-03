@@ -11,7 +11,7 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    protected $fillable = ['name', 'email', 'password', 'role', 'title'];
+    protected $fillable = ['name', 'email', 'password', 'role', 'title', 'avatar_path'];
 
     protected $hidden = ['password', 'remember_token'];
 
@@ -34,6 +34,11 @@ class User extends Authenticatable
             ->filter()->take(2)
             ->map(fn ($p) => mb_strtoupper(mb_substr($p, 0, 1)))
             ->implode('');
+    }
+
+    public function getAvatarUrlAttribute(): ?string
+    {
+        return $this->avatar_path ? route('media', ['path' => $this->avatar_path], false) : null;
     }
 
     public function isAdmin(): bool

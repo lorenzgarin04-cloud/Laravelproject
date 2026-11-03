@@ -56,9 +56,13 @@
 
             <div class="flex items-center gap-4">
                 <div class="flex items-center gap-2.5 rounded-full border border-mint-2 bg-mint-3 py-1 pl-1 pr-4">
-                    <span class="grid h-8 w-8 place-items-center rounded-full bg-brand font-display text-xs font-bold text-white">{{ auth()->user()->initials() }}</span>
-                    <span class="hidden leading-tight sm:block">
-                        <span class="block text-[13px] font-bold text-ink">{{ auth()->user()->name }}</span>
+                    @if (auth()->user()->avatar_url)
+                        <img src="{{ auth()->user()->avatar_url }}" alt="" class="h-8 w-8 rounded-full object-cover">
+                    @else
+                        <span class="grid h-8 w-8 place-items-center rounded-full bg-brand font-display text-xs font-bold text-white">{{ auth()->user()->initials() }}</span>
+                    @endif
+                    <span class="hidden max-w-[160px] leading-tight sm:block">
+                        <span class="block truncate text-[13px] font-bold text-ink">{{ auth()->user()->name }}</span>
                         <span class="block text-[10px] text-muted">{{ auth()->user()->title }}</span>
                     </span>
                 </div>
@@ -87,6 +91,18 @@
         </div>
     @endif
 
+
+    <script>
+        /* Show/hide password (plain JS: gumagana kahit hindi pa naka-load ang Alpine) */
+        function togglePw(btn) {
+            var input = btn.closest('.relative').querySelector('input');
+            var show = input.type === 'password';
+            input.type = show ? 'text' : 'password';
+            btn.querySelector('[data-eye]').classList.toggle('hidden', show);
+            btn.querySelector('[data-eye-off]').classList.toggle('hidden', !show);
+            btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+        }
+    </script>
     @stack('scripts')
 </body>
 </html>

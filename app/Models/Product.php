@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Storage;
 
 class Product extends Model
 {
@@ -37,7 +36,7 @@ class Product extends Model
     public function getPhotoUrlAttribute(): string
     {
         return $this->photo_path
-            ? Storage::disk('public')->url($this->photo_path)
+            ? route('media', ['path' => $this->photo_path], false)
             : asset('images/no-image.svg');
     }
 

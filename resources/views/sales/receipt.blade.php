@@ -16,7 +16,7 @@
         </div>
 
         <div class="mt-5 text-center">
-            <span class="mx-auto grid h-11 w-11 place-items-center rounded-xl bg-brand text-white"><x-icon name="pharmacy" class="h-6 w-6" /></span>
+            <x-logo class="mx-auto h-auto w-36" />
             <h2 class="mt-3 font-display text-xl font-bold text-ink">{{ \App\Models\Setting::get('store_name') }}</h2>
             <p class="text-xs font-medium text-brand">{{ \App\Models\Setting::get('store_tagline') }}</p>
             <p class="mt-1 text-[11px] leading-4 text-muted">{{ \App\Models\Setting::get('store_address') }}<br>Tel: {{ \App\Models\Setting::get('store_phone') }} • VAT Reg: {{ \App\Models\Setting::get('store_tin') }}</p>

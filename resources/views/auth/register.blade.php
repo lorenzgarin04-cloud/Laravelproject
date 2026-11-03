@@ -35,18 +35,11 @@
         <div class="grid gap-4 sm:grid-cols-2">
             <div>
                 <label for="password" class="label">Password <span class="text-danger">*</span></label>
-                <div class="relative">
-                    <x-icon name="lock" class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-body" />
-                    <input id="password" name="password" :type="show ? 'text' : 'password'" x-ref="pw" x-model="password" @input="password = $event.target.value" @change="password = $event.target.value" required autocomplete="new-password" placeholder="••••••••••••" class="input input-icon pr-11 font-mono">
-                    <button type="button" @click="show = show!" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-body hover:text-ink" aria-label="Toggle password visibility"><x-icon name="eye" class="h-5 w-5" /></button>
-                </div>
+                <x-password-input id="password" name="password" autocomplete="new-password" placeholder="••••••••••••" x-ref="pw" x-model="password" @input="password = $event.target.value" @change="password = $event.target.value" />
             </div>
             <div>
                 <label for="password_confirmation" class="label">Confirm Password <span class="text-danger">*</span></label>
-                <div class="relative">
-                    <x-icon name="lock" class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-body" />
-                    <input id="password_confirmation" name="password_confirmation" :type="show ? 'text' : 'password'" required autocomplete="new-password" placeholder="••••••••••••" class="input input-icon font-mono">
-                </div>
+                <x-password-input id="password_confirmation" name="password_confirmation" autocomplete="new-password" placeholder="••••••••••••" />
             </div>
         </div>
         @error('password') <p class="field-error -mt-3">{{ $message }}</p> @enderror
@@ -83,7 +76,7 @@
 <script>
 function registerForm() {
     return {
-        show: false, password: '',
+        password: '',
         init() {
             // Sinasalo ang password na ini-autofill ng browser (Chrome Password Manager) na walang input event.
             setInterval(() => {

@@ -64,14 +64,14 @@
             @foreach ($products as $p)
                 <article class="card flex flex-col p-3.5" x-data="stockCard({{ $p->id }}, {{ $p->stock }}, '{{ $p->status }}', '{{ route('products.stock', $p) }}')">
                     <div class="relative overflow-hidden rounded-lg bg-mint-3">
-                        <a href="{{ route('products.show', $p) }}"><img src="{{ $p->photo_url }}" alt="{{ $p->name }}" loading="lazy" class="aspect-square w-full object-cover"></a>
+                        <a href="{{ route('products.show', $p) }}"><img src="{{ $p->photo_url }}" alt="{{ $p->name }}" loading="lazy" class="aspect-square w-full object-cover" onerror="this.onerror=null;this.src='{{ asset('images/no-image.svg') }}'"></a>
                         <a href="{{ route('products.edit', $p) }}" class="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-white text-ink shadow hover:bg-mint" aria-label="Edit {{ $p->name }}">
                             <x-icon name="edit" class="h-3.5 w-3.5" />
                         </a>
                     </div>
 
                     <div class="mt-3 flex items-start justify-between gap-2 px-1">
-                        <a href="{{ route('products.show', $p) }}" class="font-display text-base font-bold leading-snug text-ink hover:text-brand-dark">{{ $p->name }}</a>
+                        <a href="{{ route('products.show', $p) }}" class="min-w-0 break-words font-display text-base font-bold leading-snug text-ink [overflow-wrap:anywhere] hover:text-brand-dark">{{ $p->name }}</a>
                         <span class="pill shrink-0 text-[11px]" :class="badge.cls" x-text="badge.text"></span>
                     </div>
                     <p class="mt-1.5 px-1 font-display text-lg font-bold text-brand">₱{{ number_format($p->price, 2) }}</p>

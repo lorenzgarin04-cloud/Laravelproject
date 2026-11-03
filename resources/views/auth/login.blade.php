@@ -14,36 +14,27 @@
             <div class="mt-5 rounded-lg border border-brand/25 bg-mint-3 px-4 py-3 text-sm font-medium text-brand-dark">{{ session('status') }}</div>
         @endif
 
-        <form method="POST" action="{{ route('login') }}" class="mt-7 space-y-5" x-data="{ show: false }">
+        <form method="POST" action="{{ route('login') }}" class="mt-7 space-y-5">
             @csrf
             <div>
-                <label for="email" class="label">Staff Identifier or Email</label>
+                <label for="email" class="label">Email</label>
                 <div class="relative">
                     <x-icon name="mail" class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-body" />
                     <input id="email" name="email" type="email" value="{{ old('email') }}" required autofocus autocomplete="username"
                            placeholder="e.g. staff@deguzmandrugmart.ph" class="input input-icon">
                 </div>
                 @error('email') <p class="field-error">{{ $message }}</p> @enderror
-                <p class="mt-1.5 flex items-center gap-1 text-xs text-muted"><x-icon name="info" class="h-3 w-3" /> Use the email registered to your staff account</p>
             </div>
 
             <div>
-                <label for="password" class="label">Master Password</label>
-                <div class="relative">
-                    <x-icon name="lock" class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-body" />
-                    <input id="password" name="password" :type="show ? 'text' : 'password'" required autocomplete="current-password"
-                           placeholder="••••••••" class="input input-icon pr-12 font-mono">
-                    <button type="button" @click="show = show!" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-body hover:text-ink" :aria-label="show ? 'Hide password' : 'Show password'">
-                        <x-icon name="eye" class="h-5 w-5" x-show="!show" />
-                        <x-icon name="eye-off" class="h-5 w-5" x-show="show" x-cloak />
-                    </button>
-                </div>
+                <label for="password" class="label">Password</label>
+                <x-password-input id="password" name="password" placeholder="Enter your password" />
                 @error('password') <p class="field-error">{{ $message }}</p> @enderror
             </div>
 
             <div class="flex items-center justify-between pb-1 pt-1 text-sm">
                 <label class="flex cursor-pointer items-center gap-2.5 text-body">
-                    <input type="checkbox" name="remember" class="h-4 w-4 rounded border-hint text-brand focus:ring-brand/30"> Remember Terminal
+                    <input type="checkbox" name="remember" class="h-4 w-4 rounded border-hint text-brand focus:ring-brand/30"> Remember me
                 </label>
                 <a href="{{ route('password.request') }}" class="font-semibold text-brand-dark hover:underline">Forgot Password?</a>
             </div>

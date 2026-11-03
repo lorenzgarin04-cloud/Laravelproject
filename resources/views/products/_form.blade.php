@@ -3,8 +3,13 @@
 <form method="POST" enctype="multipart/form-data"
       action="{{ $editing ? route('products.update', $product) : route('products.store') }}"
       class="card space-y-6 p-8 shadow-[0_4px_16px_rgba(0,106,65,.06)]"
-      x-data="{ preview: @js($editing ? $product->photo_url : null), hasPhoto: {{ $editing && $product->photo_path ? 'true' : 'false' }},
-                pick(e) { const f = e.target.files[0]; if (!f) return; this.preview = URL.createObjectURL(f); this.hasPhoto = true; } }">
+      x-data="{ preview: @js($editing ? $product->photo_url : null), hasPhoto: {{ $editing && $product->photo_path ? 'true' : 'false' }}, photoError: '', busy: false,
+                async pick(e) {
+                    this.photoError = ''; this.busy = true;
+                    try { const url = await window.prepareImage(e.target); if (url) { this.preview = url; this.hasPhoto = true; } }
+                    catch (err) { e.target.value = ''; this.photoError = err.message; }
+                    this.busy = false;
+                } }">
     @csrf
     @if ($editing) @method('PUT') @endif
 
@@ -71,15 +76,17 @@
         <span class="label">Product Photo</span>
         <div class="flex flex-wrap items-center gap-5 rounded-xl border border-mint-2 bg-mint-3 p-4">
             <div class="grid h-24 w-24 shrink-0 place-items-center overflow-hidden rounded-lg border-2 border-dashed border-brand/30 bg-white text-center text-[11px] font-semibold text-ink" :class="hasPhoto && 'border-solid border-mint-2'">
-                <template x-if="hasPhoto"><img :src="preview" alt="Product preview" class="h-full w-full object-cover"></template>
+                <template x-if="hasPhoto"><img :src="preview" alt="Product preview" class="h-full w-full object-cover" onerror="this.onerror=null;this.src='{{ asset('images/no-image.svg') }}'"></template>
                 <template x-if="!hasPhoto"><span><x-icon name="camera" class="mx-auto mb-1 h-6 w-6 text-brand-dark" />No Image</span></template>
             </div>
             <div>
-                <input x-ref="file" id="photo" name="photo" type="file" accept="image/png,image/jpeg,image/webp" class="sr-only" @change="pick($event)">
+                <input x-ref="file" id="photo" name="photo" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/bmp,image/avif" class="sr-only" @change="pick($event)">
                 <button type="button" @click="$refs.file.click()" class="btn-outline btn-sm px-4! py-2! text-brand-dark" style="border-color: var(--color-brand)">
                     <x-icon :name="$editing ? 'camera' : 'upload'" class="h-4 w-4" /> {{ $editing ? 'Change Photo' : 'Upload Photo' }}
                 </button>
-                <p class="mt-2 text-xs text-muted">PNG, JPG or WEBP up to 5MB</p>
+                <p class="mt-2 text-xs text-muted">PNG, JPG, JPEG, WEBP, GIF or BMP. Large photos are resized automatically.</p>
+                <p x-show="busy" x-cloak class="mt-1 text-xs font-medium text-brand-dark">Preparing photo…</p>
+                <p x-show="photoError" x-text="photoError" x-cloak class="field-error" role="alert"></p>
             </div>
         </div>
         @error('photo') <p class="field-error">{{ $message }}</p> @enderror

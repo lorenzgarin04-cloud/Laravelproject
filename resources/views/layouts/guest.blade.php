@@ -29,6 +29,18 @@
         @yield('footer')
     @endif
 
+
+    <script>
+        /* Show/hide password (plain JS: gumagana kahit hindi pa naka-load ang Alpine) */
+        function togglePw(btn) {
+            var input = btn.closest('.relative').querySelector('input');
+            var show = input.type === 'password';
+            input.type = show ? 'text' : 'password';
+            btn.querySelector('[data-eye]').classList.toggle('hidden', show);
+            btn.querySelector('[data-eye-off]').classList.toggle('hidden', !show);
+            btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+        }
+    </script>
     @stack('scripts')
 </body>
 </html>

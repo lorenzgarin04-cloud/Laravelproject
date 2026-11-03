@@ -86,3 +86,31 @@
     #receipt, #receipt * { visibility: visible !important; }
     #receipt { position: absolute; left: 0; top: 0; width: 80mm; box-shadow: none !important; border: 0 !important; }
 }
+
+/* ---------- Responsive / fixed-layout safeguards ---------- */
+html, body { max-width: 100%; overflow-x: clip; }
+body { min-width: 320px; }
+main { min-width: 0; }
+main img, main svg { max-width: 100%; }
+.break-anywhere, main h1, main h2, main td { overflow-wrap: anywhere; }
+
+/* Tablet at mas maliit: lumiliit ang padding at titulo, ang mga table ay nag-i-scroll sa loob ng card */
+@media (max-width: 1023px) {
+    main { padding-left: 1rem; padding-right: 1rem; }
+    .page-title { font-size: 28px; }
+}
+
+/* Phone */
+@media (max-width: 640px) {
+    main { padding-top: 1.25rem; padding-bottom: 1.25rem; }
+    .page-title { font-size: 24px; }
+    .card { border-radius: 0.75rem; }
+    .btn { padding-left: 1rem; padding-right: 1rem; }
+    .th { padding-left: 0.75rem; padding-right: 0.75rem; }
+}
+
+/* Napakaliit na screen */
+@media (max-width: 380px) {
+    .input { font-size: 15px; padding-left: 0.75rem; padding-right: 0.75rem; }
+    .input-icon { padding-left: 2.5rem; }
+}

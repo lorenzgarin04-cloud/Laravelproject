@@ -19,8 +19,18 @@ class ProductRequest extends FormRequest
             'stock'           => ['required', 'integer', 'min:0', 'max:1000000'],
             'expiration_date' => ['required', 'date'],
             'category'        => ['required', 'in:otc,rx,both'],
-            'photo'           => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:5120'],
+            'photo'           => ['nullable', 'file', 'image', 'mimes:png,jpg,jpeg,webp,gif,bmp,avif', 'max:10240'],
             'description'     => ['nullable', 'string', 'max:1000'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'photo.uploaded' => 'The photo failed to upload. Please try a smaller PNG or JPG image.',
+            'photo.image'    => 'The photo must be an image (PNG, JPG, JPEG, WEBP, GIF or BMP).',
+            'photo.mimes'    => 'The photo must be a PNG, JPG, JPEG, WEBP, GIF or BMP file.',
+            'photo.max'      => 'The photo may not be larger than 10MB.',
         ];
     }
 

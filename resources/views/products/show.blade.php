@@ -29,23 +29,23 @@
         </div>
     </div>
 
-    <section class="card mt-6 grid gap-8 p-7 md:grid-cols-[230px_1fr]">
+    <section class="card mt-6 grid gap-8 p-7 md:grid-cols-[230px_minmax(0,1fr)]">
         <div>
             <div class="relative rounded-xl border border-brand/20 bg-mint-3 p-3">
                 <span class="absolute right-3 top-3 z-10 rounded border border-mint-2 bg-white px-2 py-0.5 font-mono text-[11px] text-brand-dark">#{{ $product->sku }}</span>
-                <img src="{{ $product->photo_url }}" alt="{{ $product->name }}" class="mt-7 aspect-[4/3] w-full rounded-lg object-cover">
+                <img src="{{ $product->photo_url }}" alt="{{ $product->name }}" class="mt-7 aspect-[4/3] w-full rounded-lg object-cover" onerror="this.onerror=null;this.src='{{ asset('images/no-image.svg') }}'">
             </div>
             <p class="mt-2 flex items-center justify-center gap-1.5 text-xs text-muted"><x-icon name="shield-check" class="h-3.5 w-3.5 text-brand" /> Clinical Packaging</p>
         </div>
 
-        <div>
+        <div class="min-w-0">
             <div class="flex flex-wrap items-start justify-between gap-4">
-                <div>
+                <div class="min-w-0">
                     <div class="flex items-center gap-2 text-xs">
                         <span class="pill-green text-[11px] uppercase">{{ $product->category_label }}</span>
                         @if ($product->unit) <span class="text-muted">{{ ucfirst($product->unit) }} Formulation</span> @endif
                     </div>
-                    <h2 class="mt-2 font-display text-[26px] font-bold leading-tight text-ink">{{ $product->name }}</h2>
+                    <h2 class="mt-2 break-words font-display text-[26px] font-bold leading-tight text-ink [overflow-wrap:anywhere]">{{ $product->name }}</h2>
                     @if ($product->subtitle) <p class="mt-1 text-xs text-body">{{ $product->subtitle }}</p> @endif
                 </div>
                 <div class="text-right">
@@ -70,7 +70,7 @@
             </div>
 
             <h3 class="mt-6 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-ink"><x-icon name="file" class="h-4 w-4 text-brand-dark" /> Medicine Description &amp; Usage</h3>
-            <div class="mt-2 rounded-lg border border-mint-2 border-l-4 border-l-brand bg-mint-3 p-4 text-sm leading-6 text-ink">
+            <div class="mt-2 rounded-lg border border-mint-2 border-l-4 border-l-brand bg-mint-3 p-4 text-sm leading-6 text-ink [overflow-wrap:anywhere] whitespace-pre-line">
                 {{ $product->description ?: 'No description provided yet.' }}
             </div>
 

@@ -38,3 +38,32 @@ Default `MAIL_MAILER=log` — lalabas ang reset link sa `storage/logs/laravel.lo
 
 ## Tests
 `php artisan test`
+
+
+## Forgot Password via Gmail (6-digit code)
+Ang "Forgot Password" ay nagpapadala ng **6-digit code** sa email ng user (valid 10 minuto, 5 tries lang).
+Para gumana sa Gmail, kailangan ng **App Password** (hindi ang normal na Gmail password):
+
+1. Buksan ang Google Account → **Security** → i-on ang **2-Step Verification**.
+2. Hanapin ang **App passwords** → gumawa ng bago (pangalan: DeGuzmanDrugmart) → kopyahin ang 16-character code (tanggalin ang spaces).
+3. Sa `.env` ng project:
+```
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_SCHEME=smtp
+MAIL_USERNAME=youremail@gmail.com
+MAIL_PASSWORD=abcdefghijklmnop
+MAIL_FROM_ADDRESS=youremail@gmail.com
+MAIL_FROM_NAME="De Guzman Drugmart"
+```
+4. `php artisan config:clear`
+5. Test: `php artisan mail:test youremail@gmail.com` (dapat dumating sa Inbox/Spam).
+
+## Update steps (kung na-install mo na ang dating bersyon)
+```
+php artisan migrate
+php artisan view:clear
+npm run build
+```
+Hindi na kailangan ang `php artisan storage:link` — ang mga larawan ay inihahatid na ng `/media/...` route.
