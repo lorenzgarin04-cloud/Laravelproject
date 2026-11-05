@@ -29,6 +29,7 @@
             'otc'      => ['OTC Medicines', 'count-plain'],
             'low'      => ['Low Stock', 'warn'],
             'expiring' => ['Expiring Soon', 'red'],
+            'expired'  => ['Expired', 'red'],
         ];
     @endphp
     <div class="mt-5 flex flex-wrap gap-2.5">
@@ -46,7 +47,7 @@
             @endphp
             <a href="{{ route('products.index', array_filter(['filter' => $key === 'all' ? null : $key, 'q' => $term])) }}"
                class="inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-[13px] font-semibold transition {{ $cls }}">
-                @if ($key === 'low') <x-icon name="alert" class="h-3.5 w-3.5" /> @elseif ($key === 'expiring') <x-icon name="hourglass" class="h-3.5 w-3.5" /> @endif
+                @if ($key === 'low') <x-icon name="alert" class="h-3.5 w-3.5" /> @elseif ($key === 'expiring') <x-icon name="hourglass" class="h-3.5 w-3.5" /> @elseif ($key === 'expired') <x-icon name="calendar-x" class="h-3.5 w-3.5" /> @endif
                 {{ $label }}
                 <span class="rounded-full px-1.5 text-[11px] {{ $active && !in_array($tone, ['warn','red']) ? 'bg-white/25' : 'bg-black/5' }}">{{ $counts[$key] }}</span>
             </a>

@@ -45,6 +45,7 @@
             </div>
             <p class="mt-4 font-display text-[38px] font-bold leading-none text-ink">{{ $expiringCount }}</p>
             <span class="pill-red mt-4">Within {{ \App\Models\Setting::get('expiry_warn_days') }} Days</span>
+            @if ($expiredCount > 0) <span class="pill-red mt-2 border-danger bg-danger text-white">{{ $expiredCount }} already expired</span> @endif
         </div>
 
         <div class="card border-brand/30 bg-white p-5 ring-1 ring-brand/10">

@@ -77,7 +77,7 @@
             <label for="unit" class="label">Unit <span class="text-danger">*</span></label>
             <input id="unit" name="unit" list="unit-options" value="{{ old('unit', $product->unit ?? 'tablet') }}" required maxlength="30" placeholder="e.g. tablet, bottle, box" class="input">
             <datalist id="unit-options">
-                @foreach (['tablet', 'capsule', 'bottle', 'box', 'sachet', 'tube', 'piece', 'pack', 'strip', 'ampule', 'vial', 'sachet', 'ml'] as $u) <option value="{{ $u }}"></option> @endforeach
+                @foreach (['tablet', 'capsule', 'bottle', 'box', 'sachet', 'tube', 'piece', 'pack', 'strip', 'ampule', 'vial', 'ml'] as $u) <option value="{{ $u }}"></option> @endforeach
             </datalist>
             @error('unit') <p class="field-error">{{ $message }}</p> @enderror
             <p class="hint">Shown as “per tablet”, “per bottle”… in POS and details</p>

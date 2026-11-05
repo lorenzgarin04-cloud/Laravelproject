@@ -47,7 +47,8 @@ class Product extends Model
 
     public function isExpiringSoon(): bool
     {
-        return $this->expiration_date->lte(now()->addDays((int) Setting::get('expiry_warn_days')));
+        return ! $this->isExpired()
+            && $this->expiration_date->lte(now()->addDays((int) Setting::get('expiry_warn_days')));
     }
 
     public function isExpired(): bool
@@ -90,7 +91,21 @@ class Product extends Model
         return $q->where('stock', '<', (int) Setting::get('low_stock_below'));
     }
 
+    /** Malapit nang mag-expire: hindi pa expired, pero pasok sa warning days. */
     public function scopeExpiringSoon(Builder $q): Builder
+    {
+        return $q->whereDate('expiration_date', '>=', today())
+            ->whereDate('expiration_date', '<=', now()->addDays((int) Setting::get('expiry_warn_days')));
+    }
+
+    /** Expired na (lampas na ang petsa). */
+    public function scopeExpired(Builder $q): Builder
+    {
+        return $q->whereDate('expiration_date', '<', today());
+    }
+
+    /** Expired o malapit nang mag-expire (para sa Urgent Alerts). */
+    public function scopeExpiringOrExpired(Builder $q): Builder
     {
         return $q->whereDate('expiration_date', '<=', now()->addDays((int) Setting::get('expiry_warn_days')));
     }

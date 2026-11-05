@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Rules\EmailNotTaken;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -33,7 +34,7 @@ class RegisterController extends Controller
 
         $data = $request->validate([
             'name'     => ['required', 'string', 'max:255'],
-            'email'    => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'email'    => ['required', 'string', 'email', 'max:255', new EmailNotTaken],
             'password' => ['required', 'confirmed', Password::min(10)->mixedCase()->numbers()->symbols()],
             'agree'    => ['accepted'],
         ], [

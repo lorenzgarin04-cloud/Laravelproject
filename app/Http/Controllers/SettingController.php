@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Setting;
+use App\Rules\EmailNotTaken;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 
 class SettingController extends Controller
@@ -23,9 +24,12 @@ class SettingController extends Controller
     {
         $user = $request->user();
 
+        // I-lowercase muna bago i-validate (iwas duplicate / 500 error)
+        $request->merge(['email' => Str::lower(trim((string) $request->input('email')))]);
+
         $rules = [
             'name'          => ['required', 'string', 'max:255'],
-            'email'         => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'email'         => ['required', 'email', 'max:255', new EmailNotTaken($user->id)],
             'avatar'        => ['nullable', 'file', 'image', 'mimes:png,jpg,jpeg,webp,gif,bmp,avif', 'max:10240'],
             'remove_avatar' => ['nullable', 'boolean'],
         ];

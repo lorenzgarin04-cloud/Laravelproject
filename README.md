@@ -85,3 +85,15 @@ npm run build
 ## Oras ng Pilipinas (timezone)
 Sa `.env`, ilagay ang `APP_TIMEZONE=Asia/Manila`, tapos `php artisan config:clear` at `php artisan migrate`
 (ang migration ay nag-aayos ng oras ng mga lumang benta nang isang beses lang).
+
+
+## Recheck fixes (#1-#6)
+```
+php artisan migrate
+php artisan config:clear
+php artisan view:clear
+npm run build
+php artisan test
+```
+- **Timezone:** naka-force na sa `Asia/Manila` (sa `AppServiceProvider`, dahil naka-hardcode ang 'UTC' sa config/app.php). Itatama ng bagong migration nang isang beses ang oras ng mga lumang benta.
+- **npm run build** ay hindi na nangangailangan ng internet (tinanggal ang Bunny/Instrument Sans sa vite.config.js).

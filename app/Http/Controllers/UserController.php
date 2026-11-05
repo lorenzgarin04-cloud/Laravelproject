@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Rules\EmailNotTaken;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -28,7 +29,7 @@ class UserController extends Controller
 
         $data = $request->validate([
             'name'     => ['required', 'string', 'max:255'],
-            'email'    => ['required', 'email', 'max:255', 'unique:users,email'],
+            'email'    => ['required', 'email', 'max:255', new EmailNotTaken],
             'role'     => ['required', Rule::in(array_keys(self::ROLES))],
             'password' => ['required', Password::min(10)->mixedCase()->numbers()->symbols()],
         ]);

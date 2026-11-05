@@ -17,12 +17,13 @@ class DashboardController extends Controller
             : null;
 
         $lowStockProducts = Product::lowStock()->orderBy('stock')->limit(3)->get();
-        $expiringProducts = Product::expiringSoon()->orderBy('expiration_date')->limit(2)->get();
+        $expiringProducts = Product::expiringOrExpired()->orderBy('expiration_date')->limit(2)->get();
 
         return view('dashboard.index', [
             'totalProducts'    => Product::count(),
             'lowStockCount'    => Product::lowStock()->count(),
             'expiringCount'    => Product::expiringSoon()->count(),
+            'expiredCount'     => Product::expired()->count(),
             'todayTotal'       => $todayTotal,
             'delta'            => $delta,
             'recentSales'      => Sale::with('items')->latest()->limit(4)->get(),

@@ -1,18 +1,14 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
-import { bunny } from 'laravel-vite-plugin/fonts';
 import tailwindcss from '@tailwindcss/vite';
 
+// Walang online fonts dito: naka-bundle na ang mga font (Manrope, Plus Jakarta Sans, JetBrains Mono)
+// kaya gumagana ang `npm run build` kahit walang internet.
 export default defineConfig({
     plugins: [
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.js'],
             refresh: true,
-            fonts: [
-                bunny('Instrument Sans', {
-                    weights: [400, 500, 600],
-                }),
-            ],
         }),
         tailwindcss(),
     ],

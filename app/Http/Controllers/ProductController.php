@@ -23,6 +23,7 @@ class ProductController extends Controller
             'otc'      => $query->whereIn('category', ['otc', 'both']),
             'low'      => $query->lowStock(),
             'expiring' => $query->expiringSoon(),
+            'expired'  => $query->expired(),
             default    => null,
         };
 
@@ -32,6 +33,7 @@ class ProductController extends Controller
             'otc'      => Product::whereIn('category', ['otc', 'both'])->count(),
             'low'      => Product::lowStock()->count(),
             'expiring' => Product::expiringSoon()->count(),
+            'expired'  => Product::expired()->count(),
         ];
 
         return view('products.index', [
