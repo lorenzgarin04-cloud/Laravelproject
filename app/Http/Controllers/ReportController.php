@@ -92,7 +92,7 @@ class ReportController extends Controller
             ->leftJoin('products', 'products.id', '=', 'sale_items.product_id')
             ->select(
                 'sale_items.product_name', 'sale_items.quantity', 'sale_items.line_total',
-                'sales.invoice_no', 'sales.created_at as sold_at',
+                'sales.id as sale_id', 'sales.invoice_no', 'sales.created_at as sold_at',
                 'products.subtitle', 'products.unit'
             )
             ->orderByDesc('sales.created_at')->orderByDesc('sale_items.id');

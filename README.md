@@ -67,3 +67,21 @@ php artisan view:clear
 npm run build
 ```
 Hindi na kailangan ang `php artisan storage:link` — ang mga larawan ay inihahatid na ng `/media/...` route.
+
+
+## Pag-update sa bagong bersyon (bug fixes #1-#19)
+```
+npm install @fontsource-variable/manrope @fontsource-variable/plus-jakarta-sans @fontsource-variable/jetbrains-mono
+php artisan migrate
+php artisan view:clear
+npm run build
+```
+- Naka-bundle na ang mga font (walang Google Fonts) kaya pareho ang itsura kahit offline.
+- Si **Admin** lang ang puwedeng mag-Add/Edit/Delete ng product, mag +/- ng stock, at gumawa ng accounts (menu: **Users**).
+- Naka-OFF na ang public Register (bukas lang kung wala pang user). Para buksan: `REGISTRATION_ENABLED=true` sa `.env`.
+- Ilagay ang totoong address, phone at TIN sa **Settings** para lumabas sa resibo.
+
+
+## Oras ng Pilipinas (timezone)
+Sa `.env`, ilagay ang `APP_TIMEZONE=Asia/Manila`, tapos `php artisan config:clear` at `php artisan migrate`
+(ang migration ay nag-aayos ng oras ng mga lumang benta nang isang beses lang).

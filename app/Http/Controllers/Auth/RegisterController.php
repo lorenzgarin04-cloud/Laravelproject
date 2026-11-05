@@ -8,20 +8,28 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 
 class RegisterController extends Controller
 {
+    private function open(): bool
+    {
+        return config('dg.registration_enabled') || ! User::query()->exists();
+    }
+
     public function show()
     {
-        abort_unless(config('dg.registration_enabled'), 404);
+        abort_unless($this->open(), 404);
 
         return view('auth.register');
     }
 
     public function store(Request $request): RedirectResponse
     {
-        abort_unless(config('dg.registration_enabled'), 404);
+        abort_unless($this->open(), 404);
+
+        $request->merge(['email' => Str::lower(trim((string) $request->input('email')))]);
 
         $data = $request->validate([
             'name'     => ['required', 'string', 'max:255'],

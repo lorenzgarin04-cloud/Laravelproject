@@ -16,7 +16,9 @@
             <x-icon name="search" class="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-body" />
             <input type="search" name="q" value="{{ $term }}" placeholder="Search by product name, generic, or SKU…" class="input input-icon py-3.5">
         </form>
-        <a href="{{ route('products.create') }}" class="btn-primary px-8 py-3.5 text-base shadow-md">+ Add Product</a>
+        @if (auth()->user()->isAdmin())
+            <a href="{{ route('products.create') }}" class="btn-primary px-8 py-3.5 text-base shadow-md"><x-icon name="plus" class="h-5 w-5" /> Add Product</a>
+        @endif
     </div>
 
     {{-- Filter chips --}}
@@ -57,7 +59,7 @@
             <span class="mx-auto grid h-16 w-16 place-items-center rounded-full bg-mint-2 text-brand-dark"><x-icon name="pharmacy" class="h-8 w-8" /></span>
             <h2 class="mt-5 font-display text-xl font-bold text-ink">No products found</h2>
             <p class="mx-auto mt-1 max-w-sm text-sm text-muted">{{ $term ? 'Try a different search term or clear the filters.' : 'Your catalog is empty. Add your first medicine to start tracking stock.' }}</p>
-            <a href="{{ route('products.create') }}" class="btn-primary mt-6">+ Add Product</a>
+            @if (auth()->user()->isAdmin())<a href="{{ route('products.create') }}" class="btn-primary mt-6"><x-icon name="plus" class="h-4 w-4" /> Add Product</a>@endif
         </div>
     @else
         <div class="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -65,9 +67,11 @@
                 <article class="card flex flex-col p-3.5" x-data="stockCard({{ $p->id }}, {{ $p->stock }}, '{{ $p->status }}', '{{ route('products.stock', $p) }}')">
                     <div class="relative overflow-hidden rounded-lg bg-mint-3">
                         <a href="{{ route('products.show', $p) }}"><img src="{{ $p->photo_url }}" alt="{{ $p->name }}" loading="lazy" class="aspect-square w-full object-cover" onerror="this.onerror=null;this.src='{{ asset('images/no-image.svg') }}'"></a>
+                        @if (auth()->user()->isAdmin())
                         <a href="{{ route('products.edit', $p) }}" class="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-white text-ink shadow hover:bg-mint" aria-label="Edit {{ $p->name }}">
                             <x-icon name="edit" class="h-3.5 w-3.5" />
                         </a>
+                        @endif
                     </div>
 
                     <div class="mt-3 flex items-start justify-between gap-2 px-1">
@@ -76,11 +80,18 @@
                     </div>
                     <p class="mt-1.5 px-1 font-display text-lg font-bold text-brand">₱{{ number_format($p->price, 2) }}</p>
 
+                    @if (auth()->user()->isAdmin())
                     <div class="mt-auto flex items-center justify-between border-t border-mint-2 px-1 pt-3">
                         <button type="button" @click="change(-1)" :disabled="busy || stock <= 0" class="grid h-10 w-10 place-items-center rounded-full border border-line bg-mint text-ink transition hover:bg-mint-2 disabled:opacity-40" aria-label="Decrease stock"><x-icon name="minus" class="h-4 w-4" /></button>
                         <span class="font-display text-lg font-bold text-ink" x-text="stock" aria-live="polite"></span>
                         <button type="button" @click="change(1)" :disabled="busy" class="grid h-10 w-10 place-items-center rounded-full bg-brand text-white transition hover:bg-brand-dark disabled:opacity-50" aria-label="Increase stock"><x-icon name="plus" class="h-4 w-4" /></button>
                     </div>
+                    @else
+                    <div class="mt-auto flex items-center justify-between border-t border-mint-2 px-1 pt-3 text-sm">
+                        <span class="text-muted">In stock</span>
+                        <span class="font-display text-lg font-bold text-ink" x-text="stock"></span>
+                    </div>
+                    @endif
                 </article>
             @endforeach
         </div>
@@ -96,6 +107,7 @@ function stockCard(id, stock, status, url) {
         in_stock:  { text: 'In Stock',      cls: 'border-brand/25 bg-mint-2 text-brand-dark' },
         low_stock: { text: 'Low Stock',     cls: 'border-warn-line bg-warn-bg text-warn' },
         expiring:  { text: 'Expiring Soon', cls: 'border-danger-line bg-danger-bg text-danger' },
+        expired:   { text: 'Expired',       cls: 'border-danger bg-danger text-white' },
         out_of_stock: { text: 'Out of Stock', cls: 'border-danger-line bg-danger-bg text-danger' },
     };
     return {

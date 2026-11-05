@@ -47,6 +47,8 @@ $paths = [
  'save'     => '<path d="M5 3h12l4 4v14H5z"/><path d="M8 3v6h8V3M8 21v-7h8v7"/>',
  'menu'     => '<path d="M4 6h16M4 12h16M4 18h16"/>',
  'file'     => '<path d="M6 3h8l5 5v13H6z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>',
+ 'trending-down' => '<path d="m3 7 6 6 4-4 8 8M15 17h6v-6"/>',
+ 'users'    => '<circle cx="9" cy="8" r="3.5"/><path d="M2 21c0-3.5 3-5.5 7-5.5s7 2 7 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14.5c3 0 5 1.5 5 4.5"/>',
  'chevron-down' => '<path d="m6 9 6 6 6-6"/>',
 ];
 @endphp

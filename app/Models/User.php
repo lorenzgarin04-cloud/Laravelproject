@@ -23,6 +23,14 @@ class User extends Authenticatable
         ];
     }
 
+    /** Laging lowercase ang email para hindi na maging problema ang capital letters. */
+    protected function email(): \Illuminate\Database\Eloquent\Casts\Attribute
+    {
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(
+            set: fn (?string $value) => $value === null ? null : mb_strtolower(trim($value)),
+        );
+    }
+
     public function sales(): HasMany
     {
         return $this->hasMany(Sale::class);

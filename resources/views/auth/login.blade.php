@@ -44,7 +44,7 @@
             </button>
         </form>
 
-        @if (config('dg.registration_enabled'))
+        @if (config('dg.registration_enabled') || ! \App\Models\User::query()->exists())
             <div class="relative mt-7 text-center">
                 <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-line"></div></div>
                 <span class="relative bg-white px-3 text-xs text-muted">Workstation Registration</span>

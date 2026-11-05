@@ -64,10 +64,10 @@
     {{-- Table --}}
     <div class="card mt-5 overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full min-w-[640px] text-sm">
+            <table class="w-full min-w-[760px] text-sm">
                 <thead class="bg-mint-3">
                     <tr>
-                        @if ($type === 'detailed') <th class="th px-6 py-4">Date</th> @endif
+                        @if ($type === 'detailed') <th class="th px-6 py-4">Date &amp; Time</th><th class="th px-6 py-4">Invoice #</th> @endif
                         <th class="th px-6 py-4">Product</th>
                         <th class="th px-6 py-4 text-center">Quantity</th>
                         <th class="th px-6 py-4 text-right">Amount</th>
@@ -78,8 +78,11 @@
                         <tr class="odd:bg-white even:bg-mint-3/50">
                             @if ($type === 'detailed')
                                 <td class="whitespace-nowrap px-6 py-4 text-ink">
-                                    <span class="flex items-center gap-2"><x-icon name="calendar-check" class="h-4 w-4 text-brand" /> {{ \Illuminate\Support\Carbon::parse($r->sold_at)->format('M d, Y') }}</span>
+                                    <span class="flex items-center gap-2"><x-icon name="calendar-check" class="h-4 w-4 text-brand" />
+                                        <span>{{ \Illuminate\Support\Carbon::parse($r->sold_at)->format('M d, Y') }}<br><span class="text-xs text-muted">{{ \Illuminate\Support\Carbon::parse($r->sold_at)->format('h:i A') }}</span></span>
+                                    </span>
                                 </td>
+                                <td class="whitespace-nowrap px-6 py-4 font-mono text-xs font-bold text-ink"><a href="{{ route('sales.show', $r->sale_id) }}" class="hover:text-brand-dark hover:underline">#{{ $r->invoice_no }}</a></td>
                             @endif
                             <td class="px-6 py-4">
                                 <p class="font-display font-bold text-ink">{{ $r->product_name }}</p>
@@ -88,10 +91,10 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 text-center"><span class="pill-green">{{ number_format($r->quantity) }}</span></td>
-                            <td class="px-6 py-4 text-right font-display text-base font-bold text-brand">₱{{ number_format($r->line_total, 2) }}</td>
+                            <td class="whitespace-nowrap px-6 py-4 text-right font-display text-base font-bold text-brand">₱{{ number_format($r->line_total, 2) }}</td>
                         </tr>
                     @empty
-                        <tr><td colspan="4" class="px-6 py-16 text-center text-muted">No sales found for the selected dates.</td></tr>
+                        <tr><td colspan="5" class="px-6 py-16 text-center text-muted">No sales found for the selected dates.</td></tr>
                     @endforelse
                 </tbody>
             </table>

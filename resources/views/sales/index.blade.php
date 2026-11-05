@@ -23,11 +23,11 @@
                 @forelse ($sales as $sale)
                     <tr class="hover:bg-mint/60">
                         <td class="px-4 py-3.5 font-display font-bold text-ink">#{{ $sale->invoice_no }}</td>
-                        <td class="px-4 py-3.5 text-muted">{{ $sale->created_at->format('M d, Y • h:i A') }}</td>
+                        <td class="whitespace-nowrap px-4 py-3.5 text-muted">{{ $sale->created_at->format('M d, Y • h:i A') }}</td>
                         <td class="px-4 py-3.5 text-ink">{{ $sale->cashier->name }}</td>
                         <td class="px-4 py-3.5 text-center">{{ $sale->items->sum('quantity') }}</td>
-                        <td class="px-4 py-3.5 text-right font-display font-bold text-brand">₱{{ number_format($sale->total, 2) }}</td>
-                        <td class="px-4 py-3.5 text-center"><span class="pill-green capitalize">{{ $sale->status }}</span></td>
+                        <td class="whitespace-nowrap px-4 py-3.5 text-right font-display font-bold text-brand">₱{{ number_format($sale->total, 2) }}</td>
+                        <td class="whitespace-nowrap px-4 py-3.5 text-center"><span class="pill-green whitespace-nowrap capitalize">{{ $sale->status }}</span></td>
                         <td class="px-4 py-3.5 text-right"><a href="{{ route('sales.show', $sale) }}" class="btn-soft btn-sm">Receipt</a></td>
                     </tr>
                 @empty

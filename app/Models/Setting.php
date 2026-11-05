@@ -15,9 +15,9 @@ class Setting extends Model
     public const DEFAULTS = [
         'store_name'       => 'De Guzman Drugmart',
         'store_tagline'    => 'Dispensary & Clinical Supplies',
-        'store_address'    => '124 Main Health Ave, Brgy. Central, Quezon City',
-        'store_phone'      => '(02) 8123-4567',
-        'store_tin'        => '412-889-102-000',
+        'store_address'    => 'Urdaneta City, Pangasinan',
+        'store_phone'      => '',
+        'store_tin'        => '',
         'low_stock_below'  => '10',
         'expiry_warn_days' => '30',
         'email_digest'     => '1',

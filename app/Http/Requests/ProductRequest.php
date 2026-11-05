@@ -19,6 +19,8 @@ class ProductRequest extends FormRequest
             'stock'           => ['required', 'integer', 'min:0', 'max:1000000'],
             'expiration_date' => ['required', 'date'],
             'category'        => ['required', 'in:otc,rx,both'],
+            'unit'            => ['required', 'string', 'max:30'],
+            'subtitle'        => ['nullable', 'string', 'max:120'],
             'photo'           => ['nullable', 'file', 'image', 'mimes:png,jpg,jpeg,webp,gif,bmp,avif', 'max:10240'],
             'description'     => ['nullable', 'string', 'max:1000'],
         ];

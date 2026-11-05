@@ -8,6 +8,7 @@ use App\Models\SaleItem;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class SaleController extends Controller
@@ -38,11 +39,14 @@ class SaleController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'items'              => ['required', 'array', 'min:1', 'max:100'],
-            'items.*.product_id' => ['required', 'integer', 'distinct', 'exists:products,id'],
-            'items.*.quantity'   => ['required', 'integer', 'min:1', 'max:10000'],
-            'senior_pwd'         => ['boolean'],
-            'cash_received'      => ['required', 'numeric', 'min:0', 'max:99999999'],
+            'items'                 => ['required', 'array', 'min:1', 'max:100'],
+            'items.*.product_id'    => ['required', 'integer', 'distinct', Rule::exists('products', 'id')->whereNull('deleted_at')],
+            'items.*.quantity'      => ['required', 'integer', 'min:1', 'max:10000'],
+            'senior_pwd'            => ['boolean'],
+            'prescription_verified' => ['boolean'],
+            'cash_received'         => ['required', 'numeric', 'min:0', 'max:99999999'],
+        ], [
+            'items.*.product_id.exists' => 'One of the items in your cart is no longer available. Please remove it and try again.',
         ]);
 
         $sale = DB::transaction(function () use ($data, $request) {
@@ -51,10 +55,15 @@ class SaleController extends Controller
 
             $subtotal = 0;
             $lines = [];
+            $hasRx = false;
 
             foreach ($data['items'] as $row) {
-                $product = $products[$row['product_id']];
+                $product = $products->get($row['product_id']);
+                if (! $product) {
+                    throw ValidationException::withMessages(['items' => 'One of the items in your cart is no longer available. Please remove it and try again.']);
+                }
                 $qty = (int) $row['quantity'];
+                $hasRx = $hasRx || $product->category === 'rx';
 
                 if ($product->expiration_date->isPast()) {
                     throw ValidationException::withMessages(['items' => "{$product->name} is already expired and cannot be sold."]);
@@ -66,6 +75,11 @@ class SaleController extends Controller
                 $line = round($product->price * $qty, 2);
                 $subtotal += $line;
                 $lines[] = [$product, $qty, $line];
+            }
+
+            $rxVerified = (bool) ($data['prescription_verified'] ?? false);
+            if ($hasRx && ! $rxVerified) {
+                throw ValidationException::withMessages(['prescription_verified' => 'Please confirm that the prescription was verified before selling Rx items.']);
             }
 
             $seniorPwd = (bool) ($data['senior_pwd'] ?? false);
@@ -82,6 +96,7 @@ class SaleController extends Controller
                 'user_id'       => $request->user()->id,
                 'subtotal'      => $subtotal,
                 'senior_pwd'    => $seniorPwd,
+                'prescription_verified' => $hasRx && $rxVerified,
                 'discount'      => $discount,
                 'total'         => $total,
                 'cash_received' => $cash,
@@ -134,6 +149,7 @@ class SaleController extends Controller
             'id'       => $p->id,
             'name'     => $p->name,
             'category' => $p->category_label,
+            'rx'       => $p->category === 'rx',
             'subtitle' => $p->subtitle,
             'unit'     => $p->unit,
             'price'    => (float) $p->price,

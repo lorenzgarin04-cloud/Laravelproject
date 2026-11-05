@@ -50,9 +50,15 @@ class Product extends Model
         return $this->expiration_date->lte(now()->addDays((int) Setting::get('expiry_warn_days')));
     }
 
-    /** out_of_stock | expiring | low_stock | in_stock */
+    public function isExpired(): bool
+    {
+        return $this->expiration_date->lt(today());
+    }
+
+    /** expired | out_of_stock | expiring | low_stock | in_stock */
     public function getStatusAttribute(): string
     {
+        if ($this->isExpired())      return 'expired';
         if ($this->stock === 0)      return 'out_of_stock';
         if ($this->isExpiringSoon()) return 'expiring';
         if ($this->isLowStock())     return 'low_stock';

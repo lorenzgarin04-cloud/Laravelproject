@@ -25,7 +25,7 @@
             <div class="card overflow-hidden">
                 <div class="flex items-center justify-between border-b border-mint-2 bg-mint-3 px-5 py-4">
                     <h2 class="font-display text-base font-bold text-ink">Available Medicines</h2>
-                    <span class="text-xs font-semibold text-brand-dark" x-text="results.length + ' in stock'"></span>
+                    <span class="text-xs font-semibold text-brand-dark" x-text="results.length + (results.length === 1 ? ' product' : ' products')"></span>
                 </div>
 
                 <ul class="divide-y divide-mint-2">
@@ -97,6 +97,15 @@
                 </span>
             </label>
 
+            {{-- Prescription check (kapag may Rx sa cart) --}}
+            <label x-show="hasRx" x-cloak x-transition class="mt-3 flex cursor-pointer items-start gap-3 rounded-lg border border-warn-line bg-warn-bg px-3.5 py-3">
+                <input type="checkbox" x-model="rxOk" class="mt-0.5 h-4 w-4 rounded border-warn text-brand focus:ring-brand/30">
+                <span class="leading-tight">
+                    <span class="block text-sm font-semibold text-ink">Prescription verified</span>
+                    <span class="block text-[11px] text-body">The cart has Rx medicine. Check the doctor's prescription before completing the sale.</span>
+                </span>
+            </label>
+
             {{-- Totals --}}
             <div class="mt-4 rounded-xl border-2 border-brand bg-mint-2/60 p-4">
                 <div class="flex justify-between text-sm"><span class="text-body">Subtotal</span><span class="font-semibold text-ink" x-text="peso(subtotal)"></span></div>
@@ -133,6 +142,8 @@
 
             <p x-show="error" x-text="error" class="mt-3 rounded-lg border border-danger-line bg-danger-bg px-3 py-2 text-sm font-medium text-danger" role="alert"></p>
 
+            <p x-show="!canComplete && blockers.length" x-cloak class="mt-3 text-center text-xs text-muted" x-text="'To complete: ' + blockers.join(' • ')"></p>
+
             <button type="button" @click="complete()" :disabled="!canComplete || busy" class="btn-primary mt-4 w-full py-3.5 text-base">
                 <x-icon name="circle-check" class="h-5 w-5" /> <span x-text="busy ? 'Processing…' : 'Complete Sale'"></span>
             </button>
@@ -152,7 +163,7 @@ function pos() {
     const { initial, searchUrl, storeUrl } = window.POS_CONFIG;
     const cents = (n) => Math.round(Number(n) * 100);
     return {
-        q: '', results: initial, cart: [], senior: false, cash: '', busy: false, error: '',
+        q: '', results: initial, cart: [], senior: false, rxOk: false, cash: '', busy: false, error: '',
 
         async search() {
             try {
@@ -165,10 +176,10 @@ function pos() {
             this.error = '';
             const line = this.cart.find(l => l.id === p.id);
             if (line) { if (line.qty < p.stock) line.qty++; }
-            else this.cart.push({ id: p.id, name: p.name, price: p.price, stock: p.stock, qty: 1 });
+            else this.cart.push({ id: p.id, name: p.name, price: p.price, stock: p.stock, qty: 1, rx: !!p.rx });
         },
         inc(l) { if (l.qty < l.stock) l.qty++; },
-        dec(l) { l.qty--; if (l.qty <= 0) this.cart = this.cart.filter(x => x.id !== l.id); },
+        dec(l) { l.qty--; if (l.qty <= 0) { this.cart = this.cart.filter(x => x.id !== l.id); if (!this.hasRx) this.rxOk = false; } },
 
         get subtotal() { return this.cart.reduce((s, l) => s + cents(l.price) * l.qty, 0) / 100; },
         get discount() { return this.senior ? Math.round(cents(this.subtotal) * 0.2) / 100 : 0; },
@@ -176,7 +187,16 @@ function pos() {
         get received() { return this.cash === '' ? 0 : Number(this.cash); },
         get short()    { return this.cash !== '' && cents(this.received) < cents(this.total); },
         get change()   { return Math.max(0, cents(this.received) - cents(this.total)) / 100; },
-        get canComplete() { return this.cart.length > 0 && this.cash !== '' && !this.short; },
+        get hasRx()    { return this.cart.some(l => l.rx); },
+        get blockers() {
+            const b = [];
+            if (!this.cart.length) b.push('add at least one item');
+            if (this.hasRx && !this.rxOk) b.push('confirm the prescription');
+            if (this.cash === '') b.push('enter cash received');
+            else if (this.short) b.push('cash is less than the total due');
+            return b;
+        },
+        get canComplete() { return this.blockers.length === 0; },
 
         async complete() {
             if (!this.canComplete) return;
@@ -185,6 +205,7 @@ function pos() {
                 const res = await window.api(storeUrl, { method: 'POST', body: {
                     items: this.cart.map(l => ({ product_id: l.id, quantity: l.qty })),
                     senior_pwd: this.senior,
+                    prescription_verified: this.hasRx && this.rxOk,
                     cash_received: this.received,
                 }});
                 window.location.href = res.redirect;

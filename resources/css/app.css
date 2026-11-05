@@ -1,14 +1,19 @@
 @import 'tailwindcss';
 
+/* Local fonts (naka-bundle sa build): gumagana kahit walang internet */
+@import '@fontsource-variable/manrope';
+@import '@fontsource-variable/plus-jakarta-sans';
+@import '@fontsource-variable/jetbrains-mono';
+
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
-    --font-display: 'Plus Jakarta Sans', 'Manrope', ui-sans-serif, system-ui, sans-serif;
-    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+    --font-sans: 'Manrope Variable', 'Manrope', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', 'Manrope Variable', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
 
     /* De Guzman Drugmart palette (galing sa Figma) */
     --color-brand: #00945c;
@@ -45,6 +50,8 @@
                transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 disabled:cursor-not-allowed disabled:opacity-50;
     }
     .btn-primary { @apply bg-brand text-white shadow-sm hover:bg-brand-dark; }
+    /* Malinaw na naka-disable vs. handa na (full color) */
+    .btn-primary:disabled { @apply cursor-not-allowed bg-line text-muted opacity-100 shadow-none hover:bg-line; }
     .btn-outline { @apply border border-line bg-white text-ink hover:bg-mint; }
     .btn-soft    { @apply border border-brand/25 bg-mint-2 text-brand-dark hover:bg-mint-3; }
     .btn-danger  { @apply border border-danger-line bg-white text-danger hover:bg-danger-bg; }
@@ -113,4 +120,9 @@ main img, main svg { max-width: 100%; }
 @media (max-width: 380px) {
     .input { font-size: 15px; padding-left: 0.75rem; padding-right: 0.75rem; }
     .input-icon { padding-left: 2.5rem; }
+}
+
+/* Puting background ng sidebar kahit mag-scroll (fallback kung sakaling maputol ang fixed sidebar) */
+@media (min-width: 1024px) {
+    body { background-image: linear-gradient(to right, #ffffff 15rem, transparent 15rem); background-attachment: fixed; }
 }

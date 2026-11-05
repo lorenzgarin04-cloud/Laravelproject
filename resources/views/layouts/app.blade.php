@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard') · De Guzman Drugmart</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-mint font-sans text-body antialiased" x-data="{ nav: false }">
@@ -15,7 +12,7 @@
     {{-- ========== SIDEBAR ========== --}}
     <div x-show="nav" x-cloak @click="nav = false" class="fixed inset-0 z-30 bg-ink/40 lg:hidden"></div>
     <aside :class="nav ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
-           class="fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-mint-2 bg-white transition-transform">
+           class="fixed inset-y-0 left-0 z-40 flex h-dvh min-h-screen w-60 flex-col overflow-y-auto border-r border-mint-2 bg-white transition-transform">
         <a href="{{ route('dashboard') }}" class="flex justify-center px-6 pb-4 pt-8">
             <x-logo class="h-auto w-44" />
         </a>
@@ -29,6 +26,9 @@
                     ['reports.index', 'Reports', 'chart',  request()->routeIs('reports.*')],
                     ['settings.edit', 'Settings', 'gear',  request()->routeIs('settings.*')],
                 ];
+                if (auth()->user()->isAdmin()) {
+                    array_splice($links, 4, 0, [['users.index', 'Users', 'users', request()->routeIs('users.*')]]);
+                }
             @endphp
             @foreach ($links as [$route, $label, $icon, $active])
                 <a href="{{ route($route) }}" @class(['nav-link', 'nav-link-active' => $active]) @if($active) aria-current="page" @endif>
@@ -39,7 +39,7 @@
     </aside>
 
     {{-- ========== MAIN ========== --}}
-    <div class="lg:pl-60">
+    <div class="min-w-0 lg:pl-60">
         <header class="sticky top-0 z-20 flex items-center justify-between border-b border-mint-2 bg-white/95 px-5 py-3 backdrop-blur sm:px-8">
             <div class="flex items-center gap-3 text-sm">
                 <button type="button" class="rounded-lg p-1.5 text-ink hover:bg-mint lg:hidden" @click="nav = true" aria-label="Open menu">
@@ -103,6 +103,15 @@
             btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
         }
     </script>
+    @if (session('error'))
+        <div x-data="{ show: true }" x-init="setTimeout(() => show = false, 6000)" x-show="show" x-transition x-cloak
+             class="fixed right-5 top-5 z-50 flex max-w-sm items-center gap-3 rounded-xl border border-danger-line bg-white px-4 py-3 shadow-lg" role="alert">
+            <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-danger text-white"><x-icon name="x" class="h-4 w-4" /></span>
+            <span class="text-sm font-semibold text-ink">{{ session('error') }}</span>
+            <button @click="show = false" class="ml-2 text-muted hover:text-ink" aria-label="Dismiss"><x-icon name="x" class="h-4 w-4" /></button>
+        </div>
+    @endif
+
     @stack('scripts')
 </body>
 </html>

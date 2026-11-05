@@ -71,6 +71,25 @@
         </div>
     </div>
 
+    {{-- Unit / Subtitle --}}
+    <div class="grid gap-6 sm:grid-cols-2">
+        <div>
+            <label for="unit" class="label">Unit <span class="text-danger">*</span></label>
+            <input id="unit" name="unit" list="unit-options" value="{{ old('unit', $product->unit ?? 'tablet') }}" required maxlength="30" placeholder="e.g. tablet, bottle, box" class="input">
+            <datalist id="unit-options">
+                @foreach (['tablet', 'capsule', 'bottle', 'box', 'sachet', 'tube', 'piece', 'pack', 'strip', 'ampule', 'vial', 'sachet', 'ml'] as $u) <option value="{{ $u }}"></option> @endforeach
+            </datalist>
+            @error('unit') <p class="field-error">{{ $message }}</p> @enderror
+            <p class="hint">Shown as “per tablet”, “per bottle”… in POS and details</p>
+        </div>
+        <div>
+            <label for="subtitle" class="label">Subtitle <span class="font-normal text-muted">(Optional)</span></label>
+            <input id="subtitle" name="subtitle" value="{{ old('subtitle', $product->subtitle ?? '') }}" maxlength="120" placeholder="e.g. Analgesic, Antibiotic, Vitamin" class="input">
+            @error('subtitle') <p class="field-error">{{ $message }}</p> @enderror
+            <p class="hint">Short type or use of the medicine</p>
+        </div>
+    </div>
+
     {{-- Photo --}}
     <div>
         <span class="label">Product Photo</span>

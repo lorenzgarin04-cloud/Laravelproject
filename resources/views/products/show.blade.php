@@ -7,6 +7,7 @@
 @section('content')
 @php
     $badge = match ($product->status) {
+        'expired'   => ['Expired', 'bg-danger text-white'],
         'out_of_stock' => ['Out of Stock', 'bg-danger text-white'],
         'low_stock' => ['Low Stock', 'bg-warn text-white'],
         'expiring'  => ['Expiring Soon', 'bg-danger text-white'],
@@ -25,7 +26,7 @@
         </div>
         <div class="flex gap-3">
             <a href="{{ route('products.index') }}" class="btn-soft"><x-icon name="arrow-left" class="h-4 w-4" /> Back</a>
-            <a href="{{ route('products.edit', $product) }}" class="btn-primary"><x-icon name="edit" class="h-4 w-4" /> Edit Product</a>
+            @if (auth()->user()->isAdmin())<a href="{{ route('products.edit', $product) }}" class="btn-primary"><x-icon name="edit" class="h-4 w-4" /> Edit Product</a>@endif
         </div>
     </div>
 
@@ -76,7 +77,7 @@
 
             <div class="mt-6 flex justify-end gap-3 border-t border-mint-2 pt-5">
                 <a href="{{ route('products.index') }}" class="btn-soft"><x-icon name="arrow-left" class="h-4 w-4" /> Back to Products</a>
-                <a href="{{ route('products.edit', $product) }}" class="btn-primary"><x-icon name="edit" class="h-4 w-4" /> Edit Medicine</a>
+                @if (auth()->user()->isAdmin())<a href="{{ route('products.edit', $product) }}" class="btn-primary"><x-icon name="edit" class="h-4 w-4" /> Edit Medicine</a>@endif
             </div>
         </div>
     </section>

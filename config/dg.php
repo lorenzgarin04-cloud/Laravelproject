@@ -1,7 +1,8 @@
 <?php
 
 return [
-    // Itakda sa false sa .env (REGISTRATION_ENABLED=false) kapag live na ang system
-    // para walang makagawa ng sariling account.
-    'registration_enabled' => env('REGISTRATION_ENABLED', true),
+    // Naka-OFF bilang default: si Admin lang ang gumagawa ng accounts (Users page).
+    // Itakda sa true sa .env (REGISTRATION_ENABLED=true) kung gusto ng public sign-up.
+    // Palaging bukas ang Register kapag wala pang kahit isang user (para sa unang Admin).
+    'registration_enabled' => env('REGISTRATION_ENABLED', false),
 ];

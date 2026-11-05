@@ -16,16 +16,26 @@
         </div>
 
         <div class="mt-5 text-center">
-            <x-logo class="mx-auto h-auto w-36" />
+            <x-logo class="mx-auto h-auto w-28" />
             <h2 class="mt-3 font-display text-xl font-bold text-ink">{{ \App\Models\Setting::get('store_name') }}</h2>
             <p class="text-xs font-medium text-brand">{{ \App\Models\Setting::get('store_tagline') }}</p>
-            <p class="mt-1 text-[11px] leading-4 text-muted">{{ \App\Models\Setting::get('store_address') }}<br>Tel: {{ \App\Models\Setting::get('store_phone') }} • VAT Reg: {{ \App\Models\Setting::get('store_tin') }}</p>
+            <p class="mt-1 text-[11px] leading-4 text-muted">{{ \App\Models\Setting::get('store_address') }}
+                @if (filled(\App\Models\Setting::get('store_phone')) || filled(\App\Models\Setting::get('store_tin')))
+                    <br>
+                    @if (filled(\App\Models\Setting::get('store_phone'))) Tel: {{ \App\Models\Setting::get('store_phone') }} @endif
+                    @if (filled(\App\Models\Setting::get('store_phone')) && filled(\App\Models\Setting::get('store_tin'))) • @endif
+                    @if (filled(\App\Models\Setting::get('store_tin'))) VAT Reg: {{ \App\Models\Setting::get('store_tin') }} @endif
+                @endif
+            </p>
         </div>
 
         <dl class="mt-5 space-y-1.5 rounded-lg border border-brand/20 bg-mint-3 p-3.5 text-xs">
             <div class="flex justify-between"><dt class="text-body">Receipt Number:</dt><dd class="font-mono font-bold text-ink">#{{ $sale->invoice_no }}</dd></div>
             <div class="flex justify-between"><dt class="text-body">Date &amp; Time:</dt><dd class="font-semibold text-ink">{{ $sale->created_at->format('F d, Y • h:i A') }}</dd></div>
             <div class="flex justify-between"><dt class="text-body">Cashier / Staff:</dt><dd class="font-semibold text-ink">{{ $sale->cashier->name }}</dd></div>
+            @if ($sale->prescription_verified)
+                <div class="flex justify-between"><dt class="text-body">Prescription:</dt><dd class="font-semibold text-brand-dark">Verified</dd></div>
+            @endif
         </dl>
 
         <table class="mt-5 w-full text-xs">
