@@ -1,0 +1,56 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+
+class User extends Authenticatable
+{
+    use HasFactory, Notifiable;
+
+    protected $fillable = ['name', 'email', 'password', 'role', 'title', 'avatar_path'];
+
+    protected $hidden = ['password', 'remember_token'];
+
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
+
+    /** Laging lowercase ang email para hindi na maging problema ang capital letters. */
+    protected function email(): \Illuminate\Database\Eloquent\Casts\Attribute
+    {
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(
+            set: fn (?string $value) => $value === null ? null : mb_strtolower(trim($value)),
+        );
+    }
+
+    public function sales(): HasMany
+    {
+        return $this->hasMany(Sale::class);
+    }
+
+    public function initials(): string
+    {
+        return collect(explode(' ', trim($this->name)))
+            ->filter()->take(2)
+            ->map(fn ($p) => mb_strtoupper(mb_substr($p, 0, 1)))
+            ->implode('');
+    }
+
+    public function getAvatarUrlAttribute(): ?string
+    {
+        return $this->avatar_path ? route('media', ['path' => $this->avatar_path], false) : null;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+}
