@@ -44,7 +44,8 @@ class PasswordResetController extends Controller
 
         $user = User::whereRaw('lower(email) = ?', [$email])->first();
 
-        if ($user) {
+        // Admin lang ang may password. (Ang Cashier ay gumagamit ng access link.)
+        if ($user && $user->isAdmin()) {
             $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
             DB::table('password_reset_codes')->updateOrInsert(

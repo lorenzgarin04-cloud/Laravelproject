@@ -68,9 +68,13 @@
                     @error('email') <p class="field-error">{{ $message }}</p> @enderror
                     <p class="hint">Password reset codes are sent to this email.</p>
                 </div>
-                <button type="button" @click="pw = !pw; $nextTick(() => $refs.pwcard && $refs.pwcard.scrollIntoView({ behavior: 'smooth', block: 'center' }))" class="btn-outline btn-sm !px-4 !py-2.5">
-                    <x-icon name="rotate" class="h-4 w-4 text-brand" /> Change Password
-                </button>
+                @if ($admin)
+                    <button type="button" @click="pw = !pw; $nextTick(() => $refs.pwcard && $refs.pwcard.scrollIntoView({ behavior: 'smooth', block: 'center' }))" class="btn-outline btn-sm !px-4 !py-2.5">
+                        <x-icon name="rotate" class="h-4 w-4 text-brand" /> Change Password
+                    </button>
+                @else
+                    <p class="flex items-start gap-2 rounded-lg border border-mint-2 bg-mint-3 px-3 py-2.5 text-xs text-body"><x-icon name="info" class="mt-0.5 h-4 w-4 shrink-0 text-brand" /> Cashier accounts have no password. You sign in with the access link sent to your email. If you need a new one, use “Get an access link” on the login page or ask an administrator.</p>
+                @endif
             </div>
         </section>
 
@@ -159,6 +163,7 @@
     </form>
 
     {{-- Change password (hiwalay na form) --}}
+    @if ($admin)
     <form method="POST" action="{{ route('settings.password') }}" x-show="pw" x-cloak x-ref="pwcard" x-transition class="card mt-6 space-y-4 p-7"
           onsubmit="var a=this.password.value,b=this.password_confirmation.value,m=this.querySelector('[data-mismatch]'); if(a!==b){ m.classList.remove('hidden'); return false; } m.classList.add('hidden');">
         @csrf @method('PUT')
@@ -193,5 +198,6 @@
             <button type="submit" class="btn-primary btn-sm !px-6">Update Password</button>
         </div>
     </form>
+    @endif
 </div>
 @endsection

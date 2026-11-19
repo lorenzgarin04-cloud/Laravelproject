@@ -71,14 +71,14 @@
                 </div>
             </div>
 
-            <h3 class="mt-6 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-ink"><x-icon name="file" class="h-4 w-4 text-brand-dark" /> Medicine Description &amp; Usage</h3>
+            <h3 class="mt-6 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-ink"><x-icon name="file" class="h-4 w-4 text-brand-dark" /> Product Description &amp; Usage</h3>
             <div class="mt-2 rounded-lg border border-mint-2 border-l-4 border-l-brand bg-mint-3 p-4 text-sm leading-6 text-ink [overflow-wrap:anywhere] whitespace-pre-line">
                 {{ $product->description ?: 'No description provided yet.' }}
             </div>
 
             <div class="mt-6 flex justify-end gap-3 border-t border-mint-2 pt-5">
                 <a href="{{ route('products.index') }}" class="btn-soft"><x-icon name="arrow-left" class="h-4 w-4" /> Back to Products</a>
-                @if (auth()->user()->isAdmin())<a href="{{ route('products.edit', $product) }}" class="btn-primary"><x-icon name="edit" class="h-4 w-4" /> Edit Medicine</a>@endif
+                @if (auth()->user()->isAdmin())<a href="{{ route('products.edit', $product) }}" class="btn-primary"><x-icon name="edit" class="h-4 w-4" /> Edit Product</a>@endif
             </div>
         </div>
     </section>

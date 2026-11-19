@@ -27,6 +27,7 @@
             </div>
             <p class="mt-4 font-display text-[38px] font-bold leading-none text-ink">{{ number_format($totalProducts) }}</p>
             <span class="pill-green mt-4"><x-icon name="circle-check" class="h-3 w-3" /> In catalog</span>
+            <a href="{{ route('products.index') }}" class="mt-3 block text-xs font-semibold text-brand-dark hover:underline">View products →</a>
         </div>
 
         <div class="card p-5">
@@ -36,6 +37,7 @@
             </div>
             <p class="mt-4 font-display text-[38px] font-bold leading-none text-warn">{{ $lowStockCount }}</p>
             <span class="pill-warn mt-4">Requires Restock</span>
+            <a href="{{ route('products.index', ['filter' => 'low']) }}" class="mt-3 block text-xs font-semibold text-brand-dark hover:underline">View low stock →</a>
         </div>
 
         <div class="card p-5">
@@ -46,6 +48,7 @@
             <p class="mt-4 font-display text-[38px] font-bold leading-none text-ink">{{ $expiringCount }}</p>
             <span class="pill-red mt-4">Within {{ \App\Models\Setting::get('expiry_warn_days') }} Days</span>
             @if ($expiredCount > 0) <span class="pill-red mt-2 border-danger bg-danger text-white">{{ $expiredCount }} already expired</span> @endif
+            <a href="{{ route('products.index', ['filter' => 'expiring']) }}" class="mt-3 block text-xs font-semibold text-brand-dark hover:underline">View expiring →</a>
         </div>
 
         <div class="card border-brand/30 bg-white p-5 ring-1 ring-brand/10">
@@ -59,6 +62,7 @@
             @else
                 <span class="pill-green mt-4">{{ $todayCount }} sale{{ $todayCount === 1 ? '' : 's' }} today</span>
             @endif
+            <a href="{{ route('reports.index') }}" class="mt-3 block text-xs font-semibold text-brand-dark hover:underline">View Daily Report →</a>
         </div>
     </div>
 
@@ -72,11 +76,41 @@
             <a href="{{ route('products.create') }}" class="btn-primary py-3.5 text-[15px] shadow-md"><x-icon name="plus" class="h-5 w-5" /> Add Product</a>
         @endif
         <a href="{{ route('sales.create') }}" class="btn-outline py-3.5 text-[15px]"><x-icon name="receipt" class="h-5 w-5 text-brand-dark" /> Record Sale (POS)</a>
-        <a href="{{ route('reports.index') }}" class="btn-outline py-3.5 text-[15px]"><x-icon name="file" class="h-5 w-5 text-brand-dark" /> View Full Reports</a>
+        <a href="{{ route('reports.index') }}" class="btn-outline py-3.5 text-[15px]"><x-icon name="file" class="h-5 w-5 text-brand-dark" /> Today's Report</a>
     </div>
 
     {{-- Recent + Alerts --}}
     <div class="mt-7 grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_330px]">
+        <div class="min-w-0 space-y-6">
+        <section class="card min-w-0 p-6">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                    <h2 class="flex items-center gap-2.5 font-display text-lg font-bold text-ink"><x-icon name="chart" class="h-5 w-5 text-brand-dark" /> Today's Sales by Type</h2>
+                    <p class="mt-1 text-xs text-muted">Branded, Generic and Grocery — same totals as today's Daily Report.</p>
+                </div>
+                <div class="flex gap-2">
+                    <a href="{{ route('reports.index') }}" class="btn-outline btn-sm"><x-icon name="file" class="h-3.5 w-3.5" /> Daily Report</a>
+                    <a href="{{ route('reports.analytics') }}" class="btn-soft btn-sm"><x-icon name="chart" class="h-3.5 w-3.5" /> Analytics</a>
+                </div>
+            </div>
+
+            @php $typeDots = ['branded' => '#00945c', 'generic' => '#2b72d6', 'grocery' => '#ee6c35']; @endphp
+            <div class="mt-4 grid gap-3 sm:grid-cols-3">
+                @foreach ($typeToday['types'] as $key => $row)
+                    <div class="rounded-xl border border-mint-2 bg-mint-3/60 p-4">
+                        <p class="flex items-center gap-2 text-xs font-bold text-ink"><span class="h-2.5 w-2.5 rounded-sm" style="background: {{ $typeDots[$key] }}"></span> {{ $row['label'] }}</p>
+                        <p class="mt-2 font-display text-2xl font-bold leading-none text-ink">₱{{ number_format($row['net'], 2) }}</p>
+                        <p class="mt-1.5 text-[11px] text-muted">{{ number_format($row['qty']) }} {{ $row['qty'] === 1 ? 'item' : 'items' }} sold</p>
+                    </div>
+                @endforeach
+            </div>
+
+            <div class="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-brand/25 bg-mint-2/70 px-4 py-3 text-sm">
+                <span class="font-semibold text-ink">Total today</span>
+                <span class="font-display text-lg font-bold text-brand-dark">₱{{ number_format($typeToday['total'], 2) }} <span class="text-xs font-medium text-muted">• {{ $typeToday['sales'] }} {{ $typeToday['sales'] === 1 ? 'sale' : 'sales' }}</span></span>
+            </div>
+        </section>
+
         <section class="card flex min-h-[420px] min-w-0 flex-col p-6">
             <div class="flex items-center justify-between">
                 <h2 class="flex items-center gap-2.5 font-display text-lg font-bold text-ink"><x-icon name="receipt" class="h-5 w-5 text-brand-dark" /> Recent Transactions</h2>
@@ -109,6 +143,8 @@
                 <span class="font-semibold text-brand-dark">Today's Collection: ₱{{ number_format($todayTotal, 2) }}</span>
             </div>
         </section>
+
+        </div>
 
         <aside class="card min-w-0 p-5">
             <div class="flex items-center justify-between">

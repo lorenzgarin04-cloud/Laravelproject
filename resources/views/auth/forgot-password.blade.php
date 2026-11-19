@@ -11,7 +11,7 @@
         </div>
 
         <h1 class="mt-6 font-display text-[28px] font-bold text-ink">Forgot Password</h1>
-        <p class="mt-2 text-[15px] leading-6 text-body">Enter your registered email and we will send a 6-digit verification code to your Gmail inbox.</p>
+        <p class="mt-2 text-[15px] leading-6 text-body">Enter your admin email and we will send a 6-digit verification code to your Gmail inbox. (Cashiers do not have a password: use “Get an access link” on the login page.)</p>
 
         @if (session('status'))
             <div class="mt-5 rounded-lg border border-brand/25 bg-mint-3 px-4 py-3 text-sm font-medium text-brand-dark">{{ session('status') }}</div>

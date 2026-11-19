@@ -12,7 +12,7 @@
     {{-- ========== SIDEBAR ========== --}}
     <div x-show="nav" x-cloak @click="nav = false" class="fixed inset-0 z-30 bg-ink/40 lg:hidden"></div>
     <aside :class="nav ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
-           class="fixed inset-y-0 left-0 z-40 flex h-dvh min-h-screen w-60 flex-col overflow-y-auto border-r border-mint-2 bg-white transition-transform">
+           class="no-print fixed inset-y-0 left-0 z-40 flex h-dvh min-h-screen w-60 flex-col overflow-y-auto border-r border-mint-2 bg-white transition-transform">
         <a href="{{ route('dashboard') }}" class="flex justify-center px-6 pb-4 pt-8">
             <x-logo class="h-auto w-44" />
         </a>
@@ -39,8 +39,8 @@
     </aside>
 
     {{-- ========== MAIN ========== --}}
-    <div class="min-w-0 lg:pl-60">
-        <header class="sticky top-0 z-20 flex items-center justify-between border-b border-mint-2 bg-white/95 px-5 py-3 backdrop-blur sm:px-8">
+    <div class="app-shell min-w-0 lg:pl-60">
+        <header class="no-print sticky top-0 z-20 flex items-center justify-between border-b border-mint-2 bg-white/95 px-5 py-3 backdrop-blur sm:px-8">
             <div class="flex items-center gap-3 text-sm">
                 <button type="button" class="rounded-lg p-1.5 text-ink hover:bg-mint lg:hidden" @click="nav = true" aria-label="Open menu">
                     <x-icon name="menu" />

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\SaleItem;
-use App\Models\Setting;
+use App\Services\DailyReport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -12,8 +12,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportController extends Controller
 {
+    /** Mga ulat na mapipili sa "Detailed" page (ang Daily Report ay sariling page). */
     public const TYPES = [
-        'daily'      => 'Daily Sales & Stock',
         'detailed'   => 'Sales Report (Detailed)',
         'by_product' => 'Sales by Product (Summary)',
     ];
@@ -38,7 +38,15 @@ class ReportController extends Controller
         ];
 
         if ($type === 'daily') {
-            return view('reports.index', $common + ['daily' => $this->dailyData($date, $category)]);
+            $full = DailyReport::build($date);
+
+            // Ang mga card sa itaas ay laging kumpleto; ang mga talahanayan lang ang sinasala ng category.
+            $daily = $full;
+            if ($category !== 'all') {
+                $daily['columns'] = array_intersect_key($full['columns'], [$category => true]);
+            }
+
+            return view('reports.daily', ['daily' => $daily, 'totals' => $full, 'date' => $date, 'category' => $category]);
         }
 
         return view('reports.index', $common + [
@@ -53,20 +61,23 @@ class ReportController extends Controller
         [$type, $category, $date, $from, $to] = $this->filters($request);
 
         if ($type === 'daily') {
-            $daily = $this->dailyData($date, $category);
-            $filename = 'dg-drugmart-daily-sales-stock-' . $date->toDateString() . '.csv';
+            $daily = DailyReport::build($date);
+            $filename = 'dg-drugmart-daily-report-' . $date->toDateString() . '.csv';
 
-            return response()->streamDownload(function () use ($daily) {
+            return response()->streamDownload(function () use ($daily, $category) {
                 $out = fopen('php://output', 'w');
                 fwrite($out, "\xEF\xBB\xBF");
-                fputcsv($out, ['Type', 'Product', 'Unit Price', 'Expiration', 'End-of-day Stock', 'Sold Qty', 'Sold Amount (net)']);
-                foreach ($daily['columns'] as $col) {
+                fputcsv($out, ['Type', 'Product', 'Unit Price', 'Expiration', 'Last Stock', 'Sold Qty', 'Sold Amount (net)', 'Added/Removed', 'Stock Left']);
+                foreach ($daily['columns'] as $key => $col) {
+                    if ($category !== 'all' && $category !== $key) {
+                        continue;
+                    }
                     foreach ($col['rows'] as $r) {
-                        fputcsv($out, [$col['label'], $r['name'], $r['price'], $r['expires']->format('Y-m-d'), $r['stock'], $r['qty'], $r['net']]);
+                        fputcsv($out, [$col['label'], $r['name'], $r['price'], $r['expires']->format('Y-m-d'), $r['last'], $r['qty'], $r['net'], $r['added'], $r['stock']]);
                     }
                 }
                 fputcsv($out, []);
-                fputcsv($out, ['TOTAL', '', '', '', '', '', $daily['grand']]);
+                fputcsv($out, ['TOTAL SOLD', '', '', '', '', $daily['items_sold'], $daily['grand']]);
                 fclose($out);
             }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
         }
@@ -169,81 +180,5 @@ class ReportController extends Controller
             ->pluck('net', 'ptype');
 
         return collect(Product::TYPES)->map(fn ($label, $key) => (float) ($sums[$key] ?? 0))->all();
-    }
-
-    /** Daily Sales & Stock: bawat type ay may sariling column; stock = natira sa katapusan ng araw. */
-    private function dailyData(Carbon $date, string $category): array
-    {
-        $start = $date->copy()->startOfDay();
-        $end = $date->copy()->endOfDay();
-        $lowBelow = (int) Setting::get('low_stock_below');
-        $warnDays = (int) Setting::get('expiry_warn_days');
-
-        $completed = fn () => SaleItem::query()
-            ->join('sales', 'sales.id', '=', 'sale_items.sale_id')
-            ->where('sales.status', 'completed');
-
-        $soldToday = $completed()
-            ->whereBetween('sales.created_at', [$start, $end])
-            ->groupBy('sale_items.product_id')
-            ->selectRaw('sale_items.product_id as pid, SUM(sale_items.quantity) as qty, SUM(sale_items.line_total - sale_items.discount) as net')
-            ->get()->keyBy('pid');
-
-        // Ang mga nabenta PAGKATAPOS ng araw na ito: idinadagdag para malaman ang stock sa katapusan ng araw.
-        $soldAfter = $completed()
-            ->where('sales.created_at', '>', $end)
-            ->groupBy('sale_items.product_id')
-            ->selectRaw('sale_items.product_id as pid, SUM(sale_items.quantity) as qty')
-            ->pluck('qty', 'pid');
-
-        $products = Product::withTrashed()
-            ->where(fn ($q) => $q->whereNull('deleted_at')->orWhereIn('id', $soldToday->keys()->all()))
-            ->when($category !== 'all', fn ($q) => $q->where('type', $category))
-            ->get();
-
-        $columns = [];
-        $grand = 0.0;
-
-        foreach (Product::TYPES as $key => $label) {
-            if ($category !== 'all' && $category !== $key) {
-                continue;
-            }
-
-            $rows = $products->where('type', $key)->map(function (Product $p) use ($soldToday, $soldAfter, $start, $lowBelow, $warnDays) {
-                $sold = $soldToday->get($p->id);
-                $qty = $sold ? (int) $sold->qty : 0;
-                $net = $sold ? round((float) $sold->net, 2) : 0.0;
-                $stock = max(0, $p->stock + (int) ($soldAfter[$p->id] ?? 0));
-
-                $expired = $p->expiration_date->lt($start);
-                $daysLeft = (int) $start->diffInDays($p->expiration_date, false);
-                $expiring = ! $expired && $daysLeft <= $warnDays;
-                $low = $stock < $lowBelow;
-
-                $state = $qty > 0 ? 'sold' : ($expired ? 'expired' : (($low || $expiring) ? 'alert' : 'normal'));
-
-                return [
-                    'id' => $p->id, 'name' => $p->name, 'unit' => $p->unit, 'price' => (float) $p->price,
-                    'expires' => $p->expiration_date, 'stock' => $stock, 'qty' => $qty, 'net' => $net,
-                    'state' => $state, 'low' => $low, 'expiring' => $expiring, 'expired' => $expired, 'days_left' => $daysLeft,
-                    'group' => $qty > 0 ? 0 : ($expired ? 2 : 1),
-                ];
-            })
-                ->sort(fn ($a, $b) => [$a['group'], -$a['stock'], $a['name']] <=> [$b['group'], -$b['stock'], $b['name']])
-                ->values()->all();
-
-            $total = round(array_sum(array_column($rows, 'net')), 2);
-            $grand += $total;
-
-            $columns[$key] = [
-                'label' => $label,
-                'rows'  => $rows,
-                'items' => count($rows),
-                'sold'  => count(array_filter($rows, fn ($r) => $r['qty'] > 0)),
-                'total' => $total,
-            ];
-        }
-
-        return ['date' => $date, 'columns' => $columns, 'grand' => round($grand, 2)];
     }
 }

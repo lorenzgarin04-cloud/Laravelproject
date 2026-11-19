@@ -24,7 +24,7 @@
 
             <div class="card overflow-hidden">
                 <div class="flex items-center justify-between border-b border-mint-2 bg-mint-3 px-5 py-4">
-                    <h2 class="font-display text-base font-bold text-ink">Available Medicines</h2>
+                    <h2 class="font-display text-base font-bold text-ink">Available Products</h2>
                     <span class="text-xs font-semibold text-brand-dark" x-text="results.length + (results.length === 1 ? ' product' : ' products')"></span>
                 </div>
 
@@ -49,7 +49,7 @@
                     </template>
                     <li x-show="!results.length" class="px-5 py-14 text-center text-sm text-muted">No sellable products match your search.</li>
                 </ul>
-                <p class="border-t border-mint-2 bg-mint-3/60 px-5 py-3 text-[11px] text-muted">Medicines that expire within {{ \App\Models\Setting::get('expiry_warn_days') }} days (or are already expired) are not sold and are hidden from this list.</p>
+                <p class="border-t border-mint-2 bg-mint-3/60 px-5 py-3 text-[11px] text-muted">Products that expire within {{ \App\Models\Setting::get('expiry_warn_days') }} days (or are already expired) are not sold and are hidden from this list.</p>
             </div>
         </div>
 
@@ -80,7 +80,7 @@
                         </div>
                     </div>
                 </template>
-                <p x-show="!cart.length" class="py-10 text-center text-sm text-muted">No items yet. Tap <b>+ Add</b> on a medicine to start the sale.</p>
+                <p x-show="!cart.length" class="py-10 text-center text-sm text-muted">No items yet. Tap <b>+ Add</b> on a product to start the sale.</p>
             </div>
 
             {{-- Senior / PWD --}}

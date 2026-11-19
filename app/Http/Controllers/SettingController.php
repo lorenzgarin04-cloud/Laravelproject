@@ -79,6 +79,8 @@ class SettingController extends Controller
 
     public function password(Request $request): RedirectResponse
     {
+        abort_unless($request->user()->isAdmin(), 403, 'Cashier accounts sign in with an access link and have no password.');
+
         // Sariling error bag para hindi maghalo sa main form
         $data = $request->validateWithBag('updatePassword', [
             'current_password' => ['required', 'current_password'],

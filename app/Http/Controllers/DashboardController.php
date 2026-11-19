@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Sale;
+use App\Services\DailyReport;
 
 class DashboardController extends Controller
 {
@@ -24,6 +25,7 @@ class DashboardController extends Controller
         $expiredCount  = Product::expired()->count();
 
         return view('dashboard.index', [
+            'typeToday'        => DailyReport::dayTotals(today()),
             'totalProducts'    => Product::count(),
             'lowStockCount'    => $lowStockCount,
             'expiringCount'    => $expiringCount,

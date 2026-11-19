@@ -54,6 +54,8 @@
             </p>
         @endif
 
+        <p class="mt-5 text-center text-sm text-body">Cashier? <a href="{{ route('access.request') }}" class="font-semibold text-brand-dark hover:underline">Get an access link by email</a></p>
+
         <div class="mt-6 flex items-center justify-center gap-2 border-t border-mint-2 pt-5">
             <span class="h-2 w-2 rounded-full bg-brand-dark"></span>
             <span class="text-center font-mono text-[13px] font-medium tracking-wide text-muted">Verified Medical Terminal • 256-bit Encrypted Connection</span>

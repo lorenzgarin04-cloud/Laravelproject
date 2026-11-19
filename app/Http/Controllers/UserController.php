@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Rules\EmailNotTaken;
+use App\Services\AccessLink;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
+use Throwable;
 
 class UserController extends Controller
 {
@@ -28,21 +29,39 @@ class UserController extends Controller
         $request->merge(['email' => Str::lower(trim((string) $request->input('email')))]);
 
         $data = $request->validate([
-            'name'     => ['required', 'string', 'max:255'],
-            'email'    => ['required', 'email', 'max:255', new EmailNotTaken],
-            'role'     => ['required', Rule::in(array_keys(self::ROLES))],
-            'password' => ['required', Password::min(10)->mixedCase()->numbers()->symbols()],
+            'name'  => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', new EmailNotTaken],
+            'role'  => ['required', Rule::in(array_keys(self::ROLES))],
         ]);
 
-        User::create([
+        $user = User::create([
             'name'     => $data['name'],
             'email'    => $data['email'],
-            'password' => $data['password'],
+            'password' => Str::random(64), // walang password na alam ang kahit sino: access link ang paraan ng pagpasok
             'role'     => $data['role'],
             'title'    => $data['role'] === 'admin' ? 'Dispensary Lead' : 'Cashier',
         ]);
 
-        return back()->with('success', 'Account created for ' . $data['name'] . '.');
+        return $this->deliver($user, 'Account created for ' . $user->name . '.');
+    }
+
+    /** Ipadala ulit ang access link (halimbawa, nag-expire na o nabura ng cashier ang email). */
+    public function sendLink(User $user): RedirectResponse
+    {
+        return $this->deliver($user, 'A new access link was sent to ' . $user->email . '.');
+    }
+
+    private function deliver(User $user, string $success): RedirectResponse
+    {
+        try {
+            AccessLink::send($user);
+        } catch (Throwable $e) {
+            report($e);
+
+            return back()->with('error', "{$user->name}'s account exists, but the email could not be sent. Check the Gmail settings, then use “Send link”.");
+        }
+
+        return back()->with('success', $success . ' The email has a link to ' . ($user->isAdmin() ? 'set their password.' : 'open the dashboard.'));
     }
 
     public function update(Request $request, User $user): RedirectResponse

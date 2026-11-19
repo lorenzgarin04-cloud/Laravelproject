@@ -1,8 +1,8 @@
 @extends('layouts.app')
 @section('title', 'Analytics')
-@section('crumb-parent', 'Overview')
-@section('crumb-parent-url', route('dashboard'))
-@section('crumb', 'Reports & Analytics')
+@section('crumb-parent', 'Reports')
+@section('crumb-parent-url', route('reports.index'))
+@section('crumb', 'Analytics')
 
 @section('content')
 @php

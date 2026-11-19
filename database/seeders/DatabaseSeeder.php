@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Product;
 use App\Models\Sale;
+use App\Models\StockMovement;
 use App\Models\SaleItem;
 use App\Models\Setting;
 use App\Models\User;
@@ -59,11 +60,13 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($rows as [$name, $type, $sku, $cat, $sub, $unit, $price, $stock, $days, $desc]) {
-            Product::create([
+            $product = new Product([
                 'sku' => $sku, 'name' => $name, 'type' => $type, 'category' => $cat, 'subtitle' => $sub, 'unit' => $unit,
                 'price' => $price, 'stock' => $stock, 'expiration_date' => now()->addDays($days),
                 'description' => $desc,
             ]);
+            $product->created_at = now()->subDays(14); // para may kasaysayan ang Daily Report ng mga sample na benta
+            $product->save();
         }
     }
 
@@ -92,6 +95,11 @@ class DatabaseSeeder extends Seeder
                     'sale_id' => $sale->id, 'product_id' => $p->id, 'product_name' => $p->name,
                     'unit_price' => $p->price, 'quantity' => $q, 'line_total' => $p->price * $q,
                 ]);
+
+                // Bawasan ang stock at itala ang galaw (para tugma ang Daily Report)
+                $p->decrement('stock', $q);
+                StockMovement::record($p, -$q, 'sale', $cashier->id, $sale->id)
+                    ->forceFill(['created_at' => $sale->created_at, 'updated_at' => $sale->created_at])->save();
             }
         }
     }

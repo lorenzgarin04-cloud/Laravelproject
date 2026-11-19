@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProductRequest;
 use App\Models\Product;
+use App\Models\StockMovement;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -61,6 +62,10 @@ class ProductController extends Controller
 
         $product = Product::create($data);
 
+        if ($product->stock > 0) {
+            StockMovement::record($product, (int) $product->stock, 'initial', $request->user()->id, null, 'New product');
+        }
+
         return redirect()->route('products.show', $product)->with('success', 'Product saved to inventory.');
     }
 
@@ -86,7 +91,12 @@ class ProductController extends Controller
             $data['photo_path'] = $request->file('photo')->store('products', 'public');
         }
 
+        $stockBefore = (int) $product->stock;
         $product->update($data);
+
+        if ((int) $product->stock !== $stockBefore) {
+            StockMovement::record($product, (int) $product->stock - $stockBefore, 'adjust', $request->user()->id, null, 'Edited in product form');
+        }
 
         return redirect()->route('products.show', $product)->with('success', 'Changes saved.');
     }
@@ -105,6 +115,8 @@ class ProductController extends Controller
     {
         $data = $request->validate(['delta' => ['required', 'integer', 'in:-1,1']]);
 
+        $before = (int) $product->stock;
+
         // Atomic: ang database mismo ang nagbibilang (hindi nawawala ang pindot kahit sabay ang dalawang admin).
         if ($data['delta'] > 0) {
             Product::whereKey($product->id)->increment('stock');
@@ -113,6 +125,10 @@ class ProductController extends Controller
         }
 
         $product->refresh();
+
+        if ((int) $product->stock !== $before) {
+            StockMovement::record($product, (int) $product->stock - $before, 'adjust', $request->user()->id, null, 'Manual +/- on Products');
+        }
 
         return response()->json([
             'stock'  => $product->stock,

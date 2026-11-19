@@ -79,7 +79,7 @@
                 $emptyText = 'No product in the catalog is past its expiration date.';
             } else {
                 $emptyTitle = 'Your catalog is empty';
-                $emptyText = 'Add your first medicine to start tracking stock.';
+                $emptyText = 'Add your first product to start tracking stock.';
             }
         @endphp
         <div class="card mt-8 px-6 py-20 text-center">

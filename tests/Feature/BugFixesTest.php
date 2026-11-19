@@ -74,7 +74,8 @@ class BugFixesTest extends TestCase
 
     public function test_admin_can_create_accounts_but_cashier_cannot(): void
     {
-        $payload = ['name' => 'New Cashier', 'email' => 'New@Test.PH', 'role' => 'cashier', 'password' => 'Secret#12345'];
+        \Illuminate\Support\Facades\Mail::fake();
+        $payload = ['name' => 'New Cashier', 'email' => 'New@Test.PH', 'role' => 'cashier'];
 
         $this->actingAs($this->user('cashier'))->post('/users', $payload)->assertForbidden();
 
@@ -107,7 +108,7 @@ class BugFixesTest extends TestCase
     {
         DB::table('users')->insert([
             'name' => 'Juan', 'email' => 'Juan@Test.ph', 'password' => Hash::make('Secret#12345'),
-            'role' => 'cashier', 'created_at' => now(), 'updated_at' => now(),
+            'role' => 'admin', 'created_at' => now(), 'updated_at' => now(),
         ]);
 
         $this->post('/login', ['email' => 'juan@test.ph', 'password' => 'Secret#12345'])->assertRedirect('/dashboard');

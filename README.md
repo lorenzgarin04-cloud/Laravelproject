@@ -162,3 +162,24 @@ php artisan test
 - **Reports → Sales & Stock:** *Daily Sales & Stock* (3 columns, may prev/next na petsa), *Sales Report (Detailed)* at *Sales by Product*, may Category filter.
 - **Reports → Analytics:** Today / This Week / This Month / This Year, chart per type, Share of sales, Top 5 best sellers.
 - **403 Access Denied** page para sa cashier.
+
+
+## Cashier access link (Gmail)
+- Walang password ang **Cashier**. Pag gumawa ang Admin ng account sa **Users** (Full Name, Email, Role), awtomatikong may Gmail na ipapadala na may link: pindutin = diretso sa Dashboard (isang gamit lang, 72 oras).
+- Hindi makaka-login ang Cashier sa login form. Kung kailangan ng bagong link: "Cashier? Get an access link" sa login page, o **Send link** ng Admin sa Users page.
+- Ang bagong **Admin** ay nakakatanggap ng link para itakda ang sariling password.
+- Kailangang gumagana ang Gmail settings sa `.env` (App Password). Subukan: `php artisan mail:test youremail@gmail.com`.
+- Ang link ay gumagamit ng address kung saan naka-bukas ang Admin. Kung ang cashier ay sa ibang device (phone), patakbuhin ang `php artisan serve --host=0.0.0.0` at buksan ang system gamit ang IP ng laptop (hal. `http://192.168.1.5:8000`) bago gumawa ng account.
+- Update: `php artisan migrate` (bagong table na `access_tokens`).
+
+
+## Daily Report, Dashboard at POS (update)
+```
+php artisan migrate
+php artisan view:clear
+npm run build
+php artisan test
+```
+- **Reports → Daily Report** (dating Sales & Stock): bawat produkto kada araw: *Last stock*, *Sold*, *Added / Removed*, *Stock left*. Ang bawat pagbabago ng stock (benta, +/−, edit, bagong produkto) ay naka-save sa table na `stock_movements`.
+- **Dashboard:** may **Today's Sales by Type**; nandoon pa rin ang Recent Transactions.
+- **POS:** "Available Products" (kasama na ang Grocery).

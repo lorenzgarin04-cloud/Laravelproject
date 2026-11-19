@@ -22,7 +22,7 @@ class PasswordResetCodeTest extends TestCase
 
     private function makeUser(): User
     {
-        return User::create(['name' => 'Jian', 'email' => 'jian@gmail.com', 'password' => 'OldPass#12345', 'role' => 'cashier']);
+        return User::create(['name' => 'Jian', 'email' => 'jian@gmail.com', 'password' => 'OldPass#12345', 'role' => 'admin']);
     }
 
     public function test_code_is_emailed_and_can_reset_the_password(): void

@@ -68,6 +68,7 @@ class ReportsV2Test extends TestCase
     {
         $admin = $this->admin();
         $p = $this->product(['price' => 10, 'stock' => 20]);
+        $p->forceFill(['created_at' => now()->subDays(5)])->save(); // umiral na bago ang kahapon
         $this->product(['type' => 'grocery', 'name' => 'Milk']);
 
         $this->sell($admin, $p, 5);

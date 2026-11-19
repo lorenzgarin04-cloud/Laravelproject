@@ -38,6 +38,13 @@ class LoginController extends Controller
         // Hindi case-sensitive ang email (Juan@Test.ph == juan@test.ph)
         $user = User::whereRaw('lower(email) = ?', [Str::lower(trim($data['email']))])->first();
 
+        // Admin lang ang puwedeng mag-login gamit ang form na ito. Ang Cashier ay gumagamit ng access link sa Gmail.
+        if ($user && ! $user->isAdmin()) {
+            throw ValidationException::withMessages([
+                'email' => 'Cashier accounts do not sign in with a password. Use the access link sent to your email (or tap “Cashier? Get an access link” below).',
+            ]);
+        }
+
         if (! $user || ! Hash::check($data['password'], $user->password)) {
             RateLimiter::hit($key, 60);
             throw ValidationException::withMessages([

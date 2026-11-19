@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Sale;
 use App\Models\SaleItem;
+use App\Models\StockMovement;
 use App\Models\Setting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -135,6 +136,7 @@ class SaleController extends Controller
                     'discount'     => $lineDiscount,
                 ]);
                 $product->decrement('stock', $qty);
+                StockMovement::record($product, -$qty, 'sale', $request->user()->id, $sale->id);
             }
 
             return $sale;

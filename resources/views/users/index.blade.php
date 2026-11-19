@@ -8,7 +8,7 @@
 <div class="mx-auto max-w-[1000px]">
     <span class="pill-green font-mono text-[11px] uppercase tracking-wider"><x-icon name="users" class="h-3 w-3" /> Access Control</span>
     <h1 class="mt-2 font-display text-[32px] font-bold leading-tight text-ink">Users</h1>
-    <p class="mt-1 text-sm text-body">Only an administrator can create accounts. Admins manage products and settings; cashiers can record sales and view products.</p>
+    <p class="mt-1 text-sm text-body">Only an administrator can create accounts. Cashiers do not use a password: they open their dashboard from a link emailed to them.</p>
 
     {{-- Add user --}}
     <form method="POST" action="{{ route('users.store') }}" class="card mt-6 space-y-4 p-6">
@@ -32,19 +32,17 @@
                 </select>
                 @error('role') <p class="field-error">{{ $message }}</p> @enderror
             </div>
-            <div>
-                <label for="u_password" class="label">Temporary Password</label>
-                <x-password-input id="u_password" name="password" autocomplete="new-password" :icon="false" />
-                @error('password') <p class="field-error">{{ $message }}</p> @enderror
-                <p class="hint">Min. 10 characters, upper/lowercase, number &amp; symbol. The user can change it in Settings.</p>
+            <div class="rounded-lg border border-mint-2 bg-mint-3 px-4 py-3 text-xs leading-5 text-body">
+                <p class="font-semibold text-ink">How it works</p>
+                <p>After you click <b>Create &amp; Email Link</b>, we email a one-time link (valid {{ \App\Services\AccessLink::TTL_HOURS }} hours) to their Gmail. A <b>Cashier</b> clicks it and lands on the dashboard. A new <b>Admin</b> uses it to choose their own password.</p>
             </div>
         </div>
-        <div class="flex justify-end"><button class="btn-primary"><x-icon name="plus" class="h-4 w-4" /> Create Account</button></div>
+        <div class="flex justify-end"><button class="btn-primary"><x-icon name="mail" class="h-4 w-4" /> Create &amp; Email Link</button></div>
     </form>
 
     {{-- List --}}
     <div class="card mt-6 overflow-x-auto">
-        <table class="w-full min-w-[640px] text-sm">
+        <table class="w-full min-w-[720px] text-sm">
             <thead class="bg-mint-3"><tr><th class="th">Name</th><th class="th">Email</th><th class="th">Role</th><th class="th text-right">Actions</th></tr></thead>
             <tbody class="divide-y divide-mint-2">
                 @foreach ($users as $u)
@@ -61,10 +59,16 @@
                         </td>
                         <td class="px-4 py-3.5 text-right">
                             @unless ($u->is(auth()->user()))
-                                <form method="POST" action="{{ route('users.destroy', $u) }}" onsubmit="return confirm('Delete the account of {{ addslashes($u->name) }}?')">
-                                    @csrf @method('DELETE')
-                                    <button class="btn-danger btn-sm"><x-icon name="trash" class="h-3.5 w-3.5" /> Delete</button>
-                                </form>
+                                <div class="flex flex-wrap items-center justify-end gap-2">
+                                    <form method="POST" action="{{ route('users.link', $u) }}">
+                                        @csrf
+                                        <button class="btn-soft btn-sm"><x-icon name="send" class="h-3.5 w-3.5" /> Send link</button>
+                                    </form>
+                                    <form method="POST" action="{{ route('users.destroy', $u) }}" onsubmit="return confirm('Delete the account of {{ addslashes($u->name) }}?')">
+                                        @csrf @method('DELETE')
+                                        <button class="btn-danger btn-sm"><x-icon name="trash" class="h-3.5 w-3.5" /> Delete</button>
+                                    </form>
+                                </div>
                             @endunless
                         </td>
                     </tr>

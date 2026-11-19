@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\Auth\AccessController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -20,6 +21,12 @@ Route::redirect('/', '/dashboard');
 Route::get('/media/{path}', [MediaController::class, 'show'])
     ->where('path', '(products|avatars)/[A-Za-z0-9._-]+')
     ->name('media');
+
+/* ---------- Access link (galing sa Gmail) ---------- */
+Route::get('/access/request', [AccessController::class, 'requestForm'])->name('access.request');
+Route::post('/access/request', [AccessController::class, 'sendLink'])->middleware('throttle:6,1')->name('access.send');
+Route::get('/access/{token}', [AccessController::class, 'show'])->middleware('throttle:30,1')->name('access.show');
+Route::post('/access/{token}', [AccessController::class, 'setPassword'])->middleware('throttle:10,1')->name('access.password');
 
 /* ---------- Guest ---------- */
 Route::middleware('guest')->group(function () {
@@ -49,6 +56,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::post('/users', [UserController::class, 'store'])->name('users.store');
         Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+        Route::post('/users/{user}/link', [UserController::class, 'sendLink'])->name('users.link');
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     });
 
