@@ -114,7 +114,12 @@
                         <a href="{{ route('products.show', $p) }}" class="min-w-0 break-words font-display text-base font-bold leading-snug text-ink [overflow-wrap:anywhere] hover:text-brand-dark">{{ $p->name }}</a>
                         <span class="pill shrink-0 text-[11px]" :class="badge.cls" x-text="badge.text"></span>
                     </div>
-                    <p class="mt-1.5 px-1 font-display text-lg font-bold text-brand">₱{{ number_format($p->price, 2) }}</p>
+                    <p class="mt-1.5 px-1 font-display text-lg font-bold text-brand">₱{{ number_format($p->price, 2) }} <span class="font-sans text-xs font-medium text-muted">/ {{ $p->unit }}</span></p>
+                    <div class="mt-1 flex flex-wrap items-center gap-1.5 px-1">
+                        <x-type-pill :type="$p->type" />
+                        @if ($p->isRx()) <span class="rounded border border-warn-line bg-warn-bg px-1.5 text-[10px] font-bold text-warn">Rx</span> @endif
+                        <span class="text-[10px] text-muted">{{ $p->expiration_date ? 'Exp. ' . $p->expiration_date->format('M d, Y') : 'No expiry' }}</span>
+                    </div>
 
                     @if (auth()->user()->isAdmin())
                     <div class="mt-auto flex items-center justify-between border-t border-mint-2 px-1 pt-3">

@@ -52,8 +52,9 @@ class ProductController extends Controller
 
     public function store(ProductRequest $request): RedirectResponse
     {
-        $data = $request->safe()->except(['photo', 'requires_rx']);
-        $data['category'] = $request->boolean('requires_rx') ? 'rx' : 'otc';
+        $data = $request->safe()->except(['photo', 'requires_rx', 'no_expiry']);
+        $data['category'] = $request->requiresRx() ? 'rx' : 'otc';
+        $data['expiration_date'] = $request->noExpiry() ? null : $data['expiration_date'];
         $data['sku'] = Product::generateSku($data['name']);
 
         if ($request->hasFile('photo')) {
@@ -81,8 +82,9 @@ class ProductController extends Controller
 
     public function update(ProductRequest $request, Product $product): RedirectResponse
     {
-        $data = $request->safe()->except(['photo', 'requires_rx']);
-        $data['category'] = $request->boolean('requires_rx') ? 'rx' : 'otc';
+        $data = $request->safe()->except(['photo', 'requires_rx', 'no_expiry']);
+        $data['category'] = $request->requiresRx() ? 'rx' : 'otc';
+        $data['expiration_date'] = $request->noExpiry() ? null : $data['expiration_date'];
 
         if ($request->hasFile('photo')) {
             if ($product->photo_path) {

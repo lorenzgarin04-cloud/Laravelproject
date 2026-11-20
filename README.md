@@ -183,3 +183,16 @@ php artisan test
 - **Reports → Daily Report** (dating Sales & Stock): bawat produkto kada araw: *Last stock*, *Sold*, *Added / Removed*, *Stock left*. Ang bawat pagbabago ng stock (benta, +/−, edit, bagong produkto) ay naka-save sa table na `stock_movements`.
 - **Dashboard:** may **Today's Sales by Type**; nandoon pa rin ang Recent Transactions.
 - **POS:** "Available Products" (kasama na ang Grocery).
+
+
+## Product form at Dashboard (update)
+```
+php artisan migrate
+php artisan view:clear
+npm run build
+php artisan test
+```
+- **Add/Edit Product:** *Unit* ay dropdown (Per piece, Per tablet, Per bottle...). *Needs a prescription (Rx)* ay para sa gamot lang. Ang **No expiry** ay para sa **Grocery** lang (hal. napkin, sabon); ang gamot ay laging may expiration date.
+- Ang produktong walang expiration ay hindi kailanman lalabas na expired/expiring at laging mabebenta sa POS.
+- **Dashboard:** buong card na ang clickable: Total Products → Products (All), Low Stock → Low Stock filter, Expiring Soon → Expiring filter, Today's Sales → Daily Report.
+- **Settings (Cashier):** walang password na bahagi.

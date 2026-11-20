@@ -66,7 +66,7 @@
                     <label for="email" class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-ink">Email Address</label>
                     <input id="email" name="email" type="email" value="{{ old('email', auth()->user()->email) }}" required class="input py-2.5 text-sm">
                     @error('email') <p class="field-error">{{ $message }}</p> @enderror
-                    <p class="hint">Password reset codes are sent to this email.</p>
+                    <p class="hint">{{ $admin ? 'Password reset codes are sent to this email.' : 'Your access link is sent to this email.' }}</p>
                 </div>
                 @if ($admin)
                     <button type="button" @click="pw = !pw; $nextTick(() => $refs.pwcard && $refs.pwcard.scrollIntoView({ behavior: 'smooth', block: 'center' }))" class="btn-outline btn-sm !px-4 !py-2.5">

@@ -63,7 +63,7 @@
                 </div>
                 <div class="flex items-center gap-3 sm:pl-4">
                     <span class="grid h-9 w-9 place-items-center rounded-lg border border-mint-2 bg-white text-brand-dark"><x-icon name="calendar-check" class="h-4 w-4" /></span>
-                    <div><p class="text-[10px] font-bold uppercase tracking-wider text-brand-dark">Expiration Date</p><p class="font-display text-sm font-bold text-ink">{{ $product->expiration_date->format('M d, Y') }}</p></div>
+                    <div><p class="text-[10px] font-bold uppercase tracking-wider text-brand-dark">Expiration Date</p><p class="font-display text-sm font-bold text-ink">{{ $product->expiration_date ? $product->expiration_date->format('M d, Y') : 'No expiry' }}</p></div>
                 </div>
                 <div class="sm:pl-4">
                     <p class="text-[10px] font-bold uppercase tracking-wider text-brand-dark">Store Status</p>

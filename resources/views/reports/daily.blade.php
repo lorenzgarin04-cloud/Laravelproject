@@ -144,7 +144,7 @@
                                 </td>
                                 <td class="whitespace-nowrap px-4 py-3 text-right text-body">₱{{ number_format($r['price'], 2) }}</td>
                                 <td class="whitespace-nowrap px-4 py-3">
-                                    <span class="text-body">{{ $r['expires']->format('M d, Y') }}</span>
+                                    <span class="text-body">{{ $r['expires'] ? $r['expires']->format('M d, Y') : 'No expiry' }}</span>
                                     @if ($r['expired'])
                                         <span class="block text-[11px] font-semibold text-danger">Expired</span>
                                     @elseif ($r['expiring'])

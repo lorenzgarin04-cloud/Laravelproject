@@ -49,13 +49,14 @@ class Product extends Model
 
     public function isExpiringSoon(): bool
     {
-        return ! $this->isExpired()
+        return $this->expiration_date !== null
+            && ! $this->isExpired()
             && $this->expiration_date->lte(now()->addDays((int) Setting::get('expiry_warn_days')));
     }
 
     public function isExpired(): bool
     {
-        return $this->expiration_date->lt(today());
+        return $this->expiration_date !== null && $this->expiration_date->lt(today());
     }
 
     /** expired | out_of_stock | expiring | low_stock | in_stock */
@@ -111,13 +112,19 @@ class Product extends Model
      */
     public function isSellable(): bool
     {
+        if ($this->expiration_date === null) {
+            return true; // walang expiration (hal. grocery)
+        }
+
         return $this->expiration_date->gt(today()->addDays((int) Setting::get('expiry_warn_days')));
     }
 
     public function scopeSellable(Builder $q): Builder
     {
+        $limit = today()->addDays((int) Setting::get('expiry_warn_days'))->toDateString();
+
         return $q->where('stock', '>', 0)
-            ->whereDate('expiration_date', '>', today()->addDays((int) Setting::get('expiry_warn_days'))->toDateString());
+            ->where(fn ($w) => $w->whereNull('expiration_date')->orWhereDate('expiration_date', '>', $limit));
     }
 
     /** Malapit nang mag-expire: hindi pa expired, pero pasok sa warning days. */

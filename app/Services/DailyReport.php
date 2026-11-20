@@ -68,9 +68,10 @@ class DailyReport
                 $lastStock = max(0, $stockLeft - $onNet);
                 $added = $onNet - $saleNet; // dagdag/bawas na hindi benta
 
-                $expired = $p->expiration_date->lt($start);
-                $daysLeft = (int) $start->diffInDays($p->expiration_date, false);
-                $expiring = ! $expired && $daysLeft <= $warnDays;
+                $noExpiry = $p->expiration_date === null;
+                $expired = ! $noExpiry && $p->expiration_date->lt($start);
+                $daysLeft = $noExpiry ? null : (int) $start->diffInDays($p->expiration_date, false);
+                $expiring = ! $noExpiry && ! $expired && $daysLeft <= $warnDays;
                 $low = $stockLeft < $lowBelow;
 
                 $state = $expired ? 'expired' : ($soldQty > 0 ? 'sold' : (($low || $expiring) ? 'alert' : 'normal'));

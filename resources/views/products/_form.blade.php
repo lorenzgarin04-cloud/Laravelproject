@@ -4,6 +4,10 @@
       action="{{ $editing ? route('products.update', $product) : route('products.store') }}"
       class="card space-y-6 p-8 shadow-[0_4px_16px_rgba(0,106,65,.06)]"
       x-data="{ preview: @js($editing ? $product->photo_url : null), hasPhoto: {{ $editing && $product->photo_path ? 'true' : 'false' }}, photoError: '', busy: false,
+                type: @js(old('type', $product->type ?? 'generic')), noExpiry: @js((bool) old('no_expiry', $editing && $product->expiration_date === null)),
+                get grocery() { return this.type === 'grocery'; },
+                get dateOff() { return this.grocery && this.noExpiry; },
+                init() { this.$watch('type', (v) => { if (v !== 'grocery') this.noExpiry = false; }); },
                 async pick(e) {
                     this.photoError = ''; this.busy = true;
                     try { const url = await window.prepareImage(e.target); if (url) { this.preview = url; this.hasPhoto = true; } }
@@ -48,56 +52,67 @@
         </div>
     </div>
 
-    {{-- Expiration / Category --}}
+    {{-- Expiration / Product Type --}}
     <div class="grid gap-6 sm:grid-cols-2">
         <div>
-            <label for="expiration_date" class="label">Expiration Date <span class="text-danger">*</span></label>
+            <div class="mb-1.5 flex items-center justify-between gap-2">
+                <label for="expiration_date" class="text-sm font-semibold text-ink">Expiration Date <span class="text-danger" x-show="!dateOff">*</span></label>
+                <label x-show="grocery" x-cloak class="flex cursor-pointer items-center gap-1.5 text-xs font-semibold text-ink">
+                    <input type="checkbox" name="no_expiry" value="1" x-model="noExpiry" :disabled="!grocery" @checked(old('no_expiry', $editing && $product->expiration_date === null)) class="h-4 w-4 rounded border-hint text-brand focus:ring-brand/30"> No expiry
+                </label>
+            </div>
             <div class="relative">
                 <x-icon name="calendar" class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-body" />
-                <input id="expiration_date" name="expiration_date" type="date" value="{{ old('expiration_date', isset($product) ? $product->expiration_date->format('Y-m-d') : '') }}" required class="input input-icon">
+                <input id="expiration_date" name="expiration_date" type="date" value="{{ old('expiration_date', $editing && $product->expiration_date ? $product->expiration_date->format('Y-m-d') : '') }}"
+                       :required="!dateOff" :disabled="dateOff" class="input input-icon disabled:bg-mint-3 disabled:text-muted">
             </div>
             @error('expiration_date') <p class="field-error">{{ $message }}</p> @enderror
-            <p class="hint">Required for FDA shelf-life compliance tracking</p>
+            <p class="hint" x-show="!grocery">Required for medicines (FDA shelf-life tracking)</p>
+            <p class="hint" x-show="grocery" x-cloak>Tick <b>No expiry</b> for items that don't expire (napkin, soap, tissue).</p>
         </div>
+
         <div>
             <label for="type" class="label">Product Type <span class="text-danger">*</span></label>
-            <select id="type" name="type" class="input">
+            <select id="type" name="type" x-model="type" class="input">
                 @foreach (\App\Models\Product::TYPES as $v => $l)
                     <option value="{{ $v }}" @selected(old('type', $product->type ?? 'generic') === $v)>{{ $l }}</option>
                 @endforeach
             </select>
             @error('type') <p class="field-error">{{ $message }}</p> @enderror
-            <p class="hint">Branded, Generic or Grocery</p>
+            <p class="hint">Branded, Generic or Grocery (same as the daily report)</p>
+
+            {{-- Rx: para sa gamot lang, wala sa Grocery --}}
+            <label x-show="!grocery" class="mt-3 flex cursor-pointer items-start gap-3 rounded-lg border border-warn-line bg-warn-bg px-3.5 py-3">
+                <input type="checkbox" name="requires_rx" value="1" :disabled="grocery" @checked(old('requires_rx', $editing ? $product->isRx() : false)) class="mt-0.5 h-4 w-4 rounded border-warn text-brand focus:ring-brand/30">
+                <span class="text-xs leading-snug text-body"><b class="text-ink">Needs a prescription (Rx)</b> — POS will ask to verify the doctor's prescription</span>
+            </label>
         </div>
     </div>
 
     {{-- Unit / Subtitle --}}
+    @php
+        $units = ['piece', 'tablet', 'capsule', 'bottle', 'box', 'pack', 'sachet', 'strip', 'tube', 'vial', 'ampule', 'bar', 'can', 'bag', 'roll', 'set'];
+        $currentUnit = old('unit', $product->unit ?? 'piece');
+        if (! in_array($currentUnit, $units, true)) array_unshift($units, $currentUnit); // mga lumang unit na wala sa listahan
+    @endphp
     <div class="grid gap-6 sm:grid-cols-2">
         <div>
             <label for="unit" class="label">Unit <span class="text-danger">*</span></label>
-            <input id="unit" name="unit" list="unit-options" value="{{ old('unit', $product->unit ?? 'tablet') }}" required maxlength="30" placeholder="e.g. tablet, bottle, box" class="input">
-            <datalist id="unit-options">
-                @foreach (['tablet', 'capsule', 'bottle', 'box', 'sachet', 'tube', 'piece', 'pack', 'strip', 'ampule', 'vial', 'bar', 'ml'] as $u) <option value="{{ $u }}"></option> @endforeach
-            </datalist>
+            <select id="unit" name="unit" required class="input">
+                @foreach ($units as $u)
+                    <option value="{{ $u }}" @selected($currentUnit === $u)>Per {{ $u }}</option>
+                @endforeach
+            </select>
             @error('unit') <p class="field-error">{{ $message }}</p> @enderror
-            <p class="hint">Shown as “per tablet”, “per bottle”… in POS and details</p>
+            <p class="hint">How it is sold and priced (e.g. per piece, per bottle, per box)</p>
         </div>
         <div>
             <label for="subtitle" class="label">Subtitle <span class="font-normal text-muted">(Optional)</span></label>
             <input id="subtitle" name="subtitle" value="{{ old('subtitle', $product->subtitle ?? '') }}" maxlength="120" placeholder="e.g. Analgesic, Antibiotic, Vitamin" class="input">
             @error('subtitle') <p class="field-error">{{ $message }}</p> @enderror
-            <p class="hint">Short type or use of the medicine</p>
+            <p class="hint">Short type or use of the product</p>
         </div>
     </div>
-
-    {{-- Rx --}}
-    <label class="flex cursor-pointer items-start gap-3 rounded-lg border border-warn-line bg-warn-bg px-4 py-3">
-        <input type="checkbox" name="requires_rx" value="1" @checked(old('requires_rx', isset($product) ? $product->isRx() : false)) class="mt-0.5 h-4 w-4 rounded border-warn text-brand focus:ring-brand/30">
-        <span class="leading-tight">
-            <span class="block text-sm font-semibold text-ink">Prescription (Rx) medicine</span>
-            <span class="block text-xs text-body">The cashier must confirm “Prescription verified” before this item can be sold.</span>
-        </span>
-    </label>
 
     {{-- Photo --}}
     <div>

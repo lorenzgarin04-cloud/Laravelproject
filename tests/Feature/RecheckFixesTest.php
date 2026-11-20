@@ -80,6 +80,6 @@ class RecheckFixesTest extends TestCase
     {
         $html = $this->actingAs($this->user('admin', 'a@test.ph'))->get('/products/create')->assertOk()->getContent();
 
-        $this->assertSame(1, substr_count($html, '<option value="sachet">'));
+        $this->assertSame(1, substr_count($html, 'value="sachet"'));
     }
 }

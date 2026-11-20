@@ -20,27 +20,27 @@
 
     {{-- Stat cards --}}
     <div class="mt-7 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-        <div class="card p-5">
+        <a href="{{ route('products.index') }}" class="card group block p-5 transition hover:-translate-y-0.5 hover:border-brand/50 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40" aria-label="View all products">
             <div class="flex items-center justify-between">
                 <span class="text-sm text-body">Total Products</span>
                 <span class="grid h-10 w-10 place-items-center rounded-lg bg-mint-2 text-brand-dark"><x-icon name="archive" /></span>
             </div>
             <p class="mt-4 font-display text-[38px] font-bold leading-none text-ink">{{ number_format($totalProducts) }}</p>
             <span class="pill-green mt-4"><x-icon name="circle-check" class="h-3 w-3" /> In catalog</span>
-            <a href="{{ route('products.index') }}" class="mt-3 block text-xs font-semibold text-brand-dark hover:underline">View products →</a>
-        </div>
+            <span class="mt-3 block text-xs font-semibold text-brand-dark group-hover:underline">View products →</span>
+        </a>
 
-        <div class="card p-5">
+        <a href="{{ route('products.index', ['filter' => 'low']) }}" class="card group block p-5 transition hover:-translate-y-0.5 hover:border-brand/50 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40" aria-label="View low stock products">
             <div class="flex items-center justify-between">
                 <span class="text-sm text-body">Low Stock Alerts</span>
                 <span class="grid h-10 w-10 place-items-center rounded-lg bg-warn-bg text-warn"><x-icon name="alert" /></span>
             </div>
             <p class="mt-4 font-display text-[38px] font-bold leading-none text-warn">{{ $lowStockCount }}</p>
             <span class="pill-warn mt-4">Requires Restock</span>
-            <a href="{{ route('products.index', ['filter' => 'low']) }}" class="mt-3 block text-xs font-semibold text-brand-dark hover:underline">View low stock →</a>
-        </div>
+            <span class="mt-3 block text-xs font-semibold text-brand-dark group-hover:underline">View low stock →</span>
+        </a>
 
-        <div class="card p-5">
+        <a href="{{ route('products.index', ['filter' => 'expiring']) }}" class="card group block p-5 transition hover:-translate-y-0.5 hover:border-brand/50 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40" aria-label="View products expiring soon">
             <div class="flex items-center justify-between">
                 <span class="text-sm text-body">Expiring Soon</span>
                 <span class="grid h-10 w-10 place-items-center rounded-lg bg-danger-bg text-danger"><x-icon name="calendar-x" /></span>
@@ -48,10 +48,10 @@
             <p class="mt-4 font-display text-[38px] font-bold leading-none text-ink">{{ $expiringCount }}</p>
             <span class="pill-red mt-4">Within {{ \App\Models\Setting::get('expiry_warn_days') }} Days</span>
             @if ($expiredCount > 0) <span class="pill-red mt-2 border-danger bg-danger text-white">{{ $expiredCount }} already expired</span> @endif
-            <a href="{{ route('products.index', ['filter' => 'expiring']) }}" class="mt-3 block text-xs font-semibold text-brand-dark hover:underline">View expiring →</a>
-        </div>
+            <span class="mt-3 block text-xs font-semibold text-brand-dark group-hover:underline">View expiring →</span>
+        </a>
 
-        <div class="card border-brand/30 bg-white p-5 ring-1 ring-brand/10">
+        <a href="{{ route('reports.index') }}" class="card group block p-5 transition hover:-translate-y-0.5 hover:border-brand/50 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 border-brand/30 ring-1 ring-brand/10" aria-label="Open today's Daily Report">
             <div class="flex items-center justify-between">
                 <span class="text-sm text-body">Today's Sales</span>
                 <span class="grid h-10 w-10 place-items-center rounded-lg bg-mint-2 text-brand-dark"><x-icon name="cash" /></span>
@@ -62,8 +62,8 @@
             @else
                 <span class="pill-green mt-4">{{ $todayCount }} sale{{ $todayCount === 1 ? '' : 's' }} today</span>
             @endif
-            <a href="{{ route('reports.index') }}" class="mt-3 block text-xs font-semibold text-brand-dark hover:underline">View Daily Report →</a>
-        </div>
+            <span class="mt-3 block text-xs font-semibold text-brand-dark group-hover:underline">View Daily Report →</span>
+        </a>
     </div>
 
     {{-- Quick actions --}}
@@ -97,11 +97,11 @@
             @php $typeDots = ['branded' => '#00945c', 'generic' => '#2b72d6', 'grocery' => '#ee6c35']; @endphp
             <div class="mt-4 grid gap-3 sm:grid-cols-3">
                 @foreach ($typeToday['types'] as $key => $row)
-                    <div class="rounded-xl border border-mint-2 bg-mint-3/60 p-4">
+                    <a href="{{ route('reports.index', ['category' => $key]) }}" class="block rounded-xl border border-mint-2 bg-mint-3/60 p-4 transition hover:border-brand/40 hover:bg-mint-2/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40" aria-label="Open {{ $row['label'] }} in the Daily Report">
                         <p class="flex items-center gap-2 text-xs font-bold text-ink"><span class="h-2.5 w-2.5 rounded-sm" style="background: {{ $typeDots[$key] }}"></span> {{ $row['label'] }}</p>
                         <p class="mt-2 font-display text-2xl font-bold leading-none text-ink">₱{{ number_format($row['net'], 2) }}</p>
                         <p class="mt-1.5 text-[11px] text-muted">{{ number_format($row['qty']) }} {{ $row['qty'] === 1 ? 'item' : 'items' }} sold</p>
-                    </div>
+                    </a>
                 @endforeach
             </div>
 

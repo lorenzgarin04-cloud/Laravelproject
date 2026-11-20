@@ -73,7 +73,7 @@ class ReportController extends Controller
                         continue;
                     }
                     foreach ($col['rows'] as $r) {
-                        fputcsv($out, [$col['label'], $r['name'], $r['price'], $r['expires']->format('Y-m-d'), $r['last'], $r['qty'], $r['net'], $r['added'], $r['stock']]);
+                        fputcsv($out, [$col['label'], $r['name'], $r['price'], ($r['expires'] ? $r['expires']->format('Y-m-d') : 'No expiry'), $r['last'], $r['qty'], $r['net'], $r['added'], $r['stock']]);
                     }
                 }
                 fputcsv($out, []);
