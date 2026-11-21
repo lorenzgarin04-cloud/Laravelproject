@@ -68,7 +68,7 @@ class ReportFixesTest extends TestCase
         $this->product(['name' => 'Fresh Med', 'expiration_date' => today()->addDays(200)]);
 
         $this->actingAs($this->user('cashier', 'c@test.ph'))->getJson('/sales/search?q=Med')
-            ->assertOk()->assertJsonCount(1)->assertJsonFragment(['name' => 'Fresh Med']);
+            ->assertOk()->assertJsonCount(1, 'items')->assertJsonFragment(['name' => 'Fresh Med']);
     }
 
     /** #2 Critical = low stock + expiring + expired */

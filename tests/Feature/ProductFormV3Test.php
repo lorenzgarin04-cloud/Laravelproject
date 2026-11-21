@@ -48,7 +48,7 @@ class ProductFormV3Test extends TestCase
         $this->assertSame(0, Product::expired()->count() + Product::expiringSoon()->count());
 
         // Mabebenta sa POS at lumalabas sa listahan
-        $this->actingAs($admin)->getJson('/sales/search?q=Napkin')->assertOk()->assertJsonCount(1);
+        $this->actingAs($admin)->getJson('/sales/search?q=Napkin')->assertOk()->assertJsonCount(1, 'items');
         $this->actingAs($admin)->postJson('/sales', ['items' => [['product_id' => $p->id, 'quantity' => 2]], 'cash_received' => 100])->assertOk();
         $this->assertSame(28, $p->fresh()->stock);
 
@@ -141,5 +141,29 @@ class ProductFormV3Test extends TestCase
             ->assertDontSee('Change Password')->assertDontSee('Password reset codes')->assertSee('Your access link is sent to this email.');
 
         $this->actingAs($this->admin())->get('/settings')->assertOk()->assertSee('Change Password');
+    }
+
+    /** POS: ipinapakita ang LAHAT ng mabebentang produkto (hindi lang 8) */
+    public function test_pos_lists_every_sellable_product_with_the_right_total(): void
+    {
+        $admin = $this->admin();
+
+        foreach (range(1, 27) as $i) {
+            Product::create([
+                'sku' => sprintf('POS-%05d', $i), 'name' => sprintf('Pos Item %02d', $i), 'type' => 'generic', 'category' => 'otc',
+                'unit' => 'piece', 'price' => 10, 'stock' => 5, 'expiration_date' => now()->addYear(),
+            ]);
+        }
+        // Isang malapit nang mag-expire at isang ubos ang stock: hindi dapat isama
+        Product::create(['sku' => 'POS-NEAR', 'name' => 'Pos Near Expiry', 'type' => 'generic', 'category' => 'otc', 'unit' => 'piece', 'price' => 10, 'stock' => 5, 'expiration_date' => now()->addDays(10)]);
+        Product::create(['sku' => 'POS-ZERO', 'name' => 'Pos Zero Stock', 'type' => 'generic', 'category' => 'otc', 'unit' => 'piece', 'price' => 10, 'stock' => 0, 'expiration_date' => now()->addYear()]);
+
+        $page = $this->actingAs($admin)->get('/sales')->assertOk();
+        $initial = $page->viewData('initial');
+        $this->assertSame(27, $initial['total']);
+        $this->assertCount(27, $initial['items']);
+
+        $this->actingAs($admin)->getJson('/sales/search?q=' . urlencode('Pos Item 1'))->assertOk()->assertJsonPath('total', 10)->assertJsonCount(10, 'items');
+        $this->actingAs($admin)->getJson('/sales/search?q=Near')->assertOk()->assertJsonPath('total', 0);
     }
 }

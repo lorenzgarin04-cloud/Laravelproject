@@ -196,3 +196,7 @@ php artisan test
 - Ang produktong walang expiration ay hindi kailanman lalabas na expired/expiring at laging mabebenta sa POS.
 - **Dashboard:** buong card na ang clickable: Total Products → Products (All), Low Stock → Low Stock filter, Expiring Soon → Expiring filter, Today's Sales → Daily Report.
 - **Settings (Cashier):** walang password na bahagi.
+
+
+## POS list (update)
+- Ipinapakita na ang **lahat** ng mabebentang produkto (hindi na 8 lang). Ang bilang sa itaas ay ang kabuuan; scrollable ang listahan. Ang mga produktong ubos na ang stock o 30 araw (o mas malapit) na lang bago mag-expire ay hindi lalabas, ayon sa rule.

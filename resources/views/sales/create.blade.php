@@ -25,10 +25,10 @@
             <div class="card overflow-hidden">
                 <div class="flex items-center justify-between border-b border-mint-2 bg-mint-3 px-5 py-4">
                     <h2 class="font-display text-base font-bold text-ink">Available Products</h2>
-                    <span class="text-xs font-semibold text-brand-dark" x-text="results.length + (results.length === 1 ? ' product' : ' products')"></span>
+                    <span class="text-xs font-semibold text-brand-dark" x-text="countLabel"></span>
                 </div>
 
-                <ul class="divide-y divide-mint-2">
+                <ul class="max-h-[68vh] divide-y divide-mint-2 overflow-y-auto">
                     <template x-for="p in results" :key="p.id">
                         <li class="flex min-w-0 items-center gap-3 px-4 py-4 sm:gap-4 sm:px-5">
                             <img :src="p.photo" :alt="p.name" class="h-12 w-12 shrink-0 rounded-md border border-mint-2 bg-mint-3 object-cover" onerror="this.onerror=null;this.src='{{ asset('images/no-image.svg') }}'">
@@ -164,13 +164,19 @@ function pos() {
     const { initial, searchUrl, storeUrl } = window.POS_CONFIG;
     const cents = (n) => Math.round(Number(n) * 100);
     return {
-        q: '', results: initial, cart: [], senior: false, rxOk: false, cash: '', busy: false, error: '',
+        q: '', results: initial.items, total: initial.total, cart: [], senior: false, rxOk: false, cash: '', busy: false, error: '',
 
         async search() {
             try {
                 const res = await window.api(searchUrl + '?q=' + encodeURIComponent(this.q.trim()));
-                this.results = res;
+                this.results = res.items;
+                this.total = res.total;
             } catch (e) { this.error = e.message; }
+        },
+        get countLabel() {
+            const n = this.results.length;
+            if (this.total > n) return 'Showing ' + n + ' of ' + this.total + ' products';
+            return n + (n === 1 ? ' product' : ' products');
         },
         inCart(p) { return this.cart.find(l => l.id === p.id)?.qty ?? 0; },
         add(p) {

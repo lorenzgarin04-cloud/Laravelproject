@@ -18,10 +18,13 @@ class SaleController extends Controller
     public const SENIOR_PWD_RATE = 0.20; // RA 9994 / RA 10754
 
     /** Record a Sale (POS) screen */
+    /** Pinakamaraming produktong ipapakita nang sabay sa POS list (ang iba ay hahanapin gamit ang search). */
+    private const LIST_LIMIT = 100;
+
     public function create()
     {
         return view('sales.create', [
-            'initial'  => $this->sellable()->orderBy('name')->limit(8)->get()->map(fn ($p) => $this->present($p)),
+            'initial'  => $this->listing(''),
             'register' => 'Cash Register #1',
         ]);
     }
@@ -29,12 +32,18 @@ class SaleController extends Controller
     /** Live search para sa POS */
     public function search(Request $request): JsonResponse
     {
-        $items = $this->sellable()
-            ->search(trim((string) $request->query('q', '')))
-            ->orderBy('name')->limit(12)->get()
-            ->map(fn ($p) => $this->present($p));
+        return response()->json($this->listing(trim((string) $request->query('q', ''))));
+    }
 
-        return response()->json($items);
+    /** Lahat ng mabebentang produkto (may stock at hindi malapit nang mag-expire), kasama ang kabuuang bilang. */
+    private function listing(string $term): array
+    {
+        $query = $this->sellable()->search($term);
+
+        return [
+            'total' => (clone $query)->count(),
+            'items' => $query->orderBy('name')->limit(self::LIST_LIMIT)->get()->map(fn ($p) => $this->present($p))->values()->all(),
+        ];
     }
 
     /** Complete Sale */
